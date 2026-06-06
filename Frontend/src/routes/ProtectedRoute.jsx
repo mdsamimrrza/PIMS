@@ -4,15 +4,16 @@ import { ROLES } from '../constants/roles';
 import { getRoleHomePath, getStoredRole, isValidRole } from '../utils/session';
 
 export default function ProtectedRoute({ children, allowedRoles }) {
-  const token = useSelector((state) => state.auth.token);
+  const user = useSelector((state) => state.auth.user);
   const role = useSelector((state) => state.auth.role) || getStoredRole();
   const authStatus = useSelector((state) => state.auth.status);
+  const isAuthenticated = authStatus === 'authenticated' && Boolean(user);
 
-  if (authStatus === 'checking' || (authStatus === 'idle' && token)) {
+  if (authStatus === 'checking') {
     return null;
   }
 
-  if (!token) {
+  if (!isAuthenticated) {
     return <Navigate replace to="/login" />;
   }
 

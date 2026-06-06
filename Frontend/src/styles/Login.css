@@ -1,0 +1,53 @@
+.login-card {
+  width: min(100%, 480px);
+  padding: clamp(1.5rem, 5vw, 3rem);
+  background: var(--surface);
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-premium);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.brand-mark {
+  width: 56px;
+  height: 56px;
+  background: var(--grad-primary);
+  color: white;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  box-shadow: 0 10px 20px rgba(27, 201, 154, 0.2);
+}
+
+.login-brand h1 {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.login-submit {
+  width: 100%;
+  padding: 1.1rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: var(--shadow-lg);
+  }
+}

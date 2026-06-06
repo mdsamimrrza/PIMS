@@ -1,24 +1,19 @@
-import { Router } from 'express'
-import { createNewUser, getAllUsers, getSingleUser, removeUser, removeUserPermanently, updateExistingUser } from '../controllers/user.controller.js'
-import { verifyToken } from '../middlewares/auth.middleware.js'
-import { requireRole } from '../middlewares/role.middleware.js'
-import {
-  validateCreateUser,
-  validateUpdateUser,
-  validateUserIdParam,
-  validateUserQuery,
-} from '../validators/user.validator.js'
+const express = require('express');
+const router = express.Router();
+const userController = require('../controllers/user.controller');
+const { verifyToken } = require('../middlewares/auth.middleware');
+const { requireRole } = require('../middlewares/role.middleware');
+const userValidator = require('../validators/user.validator');
 
-const router = Router()
+router.use(verifyToken);
 
-router.use(verifyToken)
-router.use(requireRole('ADMIN'))
+router.get('/', requireRole('admin', 'receptionist', 'doctor', 'nurse'), userValidator.validateUserQuery, userController.getAllUsers);
+router.get('/:id', requireRole('admin', 'receptionist', 'doctor', 'nurse'), userValidator.validateUserIdParam, userController.getSingleUser);
 
-router.get('/', validateUserQuery, getAllUsers)
-router.post('/', validateCreateUser, createNewUser)
-router.delete('/:id/permanent', validateUserIdParam, removeUserPermanently)
-router.get('/:id', validateUserIdParam, getSingleUser)
-router.put('/:id', validateUpdateUser, updateExistingUser)
-router.delete('/:id', validateUserIdParam, removeUser)
+// Restricted to admin only
+router.post('/', requireRole('admin'), userValidator.validateCreateUser, userController.createNewUser);
+router.delete('/:id/permanent', requireRole('admin'), userValidator.validateUserIdParam, userController.removeUserPermanently);
+router.put('/:id', requireRole('admin'), userValidator.validateUpdateUser, userController.updateExistingUser);
+router.delete('/:id', requireRole('admin'), userValidator.validateUserIdParam, userController.removeUser);
 
-export default router
+module.exports = router;

@@ -8,8 +8,9 @@ function iconForType(type) {
     return 'checkCircle';
   }
   if (type === 'error') {
-    return 'alert';
+    return 'error';
   }
+
   if (type === 'warning') {
     return 'info';
   }
@@ -40,13 +41,12 @@ export default function ToastViewport() {
     <aside aria-live="polite" className="toast-viewport" aria-label="Notifications">
       {toasts.map((toast) => (
         <div className={`toast toast-${toast.type}`} key={toast.id} role="status">
-          <div className="toast-accent" aria-hidden="true" />
           <div className="toast-icon">
-            <AppIcon name={iconForType(toast.type)} size={18} />
+            <AppIcon name={iconForType(toast.type)} size={20} />
           </div>
           <div className="toast-copy">
             <strong>{toast.title}</strong>
-            {toast.message ? <div className="helper-text">{toast.message}</div> : null}
+            {toast.message ? <div className="toast-message">{toast.message}</div> : null}
           </div>
           <button
             aria-label="Close notification"
@@ -56,6 +56,10 @@ export default function ToastViewport() {
           >
             <AppIcon name="close" size={16} />
           </button>
+          <div 
+            className="toast-progress" 
+            style={{ animationDuration: `${Math.max(1200, Number(toast.duration || 3600))}ms` }} 
+          />
         </div>
       ))}
     </aside>

@@ -1,0 +1,718 @@
+/* 🩺 PIMS Professional Portal — Dedicated Stylesheet
+   Covers the application shell, navigation, and professional headers for 
+   Doctors, Pharmacists, Administrators, Nurses, and Staff.
+*/
+
+.app-shell {
+  display: grid;
+  min-height: 100vh;
+  grid-template-columns: 258px minmax(0, 1fr);
+  position: relative;
+  transition: grid-template-columns 180ms ease;
+}
+
+.app-shell.sidebar-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.app-shell.sidebar-collapsed .sidebar {
+  display: none;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--line);
+  background: var(--surface-grad-soft);
+  backdrop-filter: blur(18px);
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+.sidebar.is-closed {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1.5rem 1.6rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.sidebar-toggle {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  background: var(--surface-grad);
+  color: var(--text);
+  transition: transform 140ms ease, border-color 140ms ease;
+}
+
+.sidebar-toggle:hover {
+  transform: translateY(-1px);
+  border-color: var(--line-strong);
+}
+
+.sidebar-toggle-in-panel {
+  margin-left: auto;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  background: rgba(15, 23, 42, 0.22);
+  z-index: 18;
+}
+
+.brand-mark {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--surface-accent);
+  color: var(--accent-strong);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: transform 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+
+.brand-mark:hover {
+  transform: translateY(-1px);
+  color: var(--accent);
+  border-color: var(--line-strong);
+}
+
+.brand-copy {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.brand-copy strong {
+  font-size: 1.5rem;
+  letter-spacing: -0.03em;
+}
+
+.sidebar-nav {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1.2rem 0.9rem;
+}
+
+.nav-link,
+.sidebar-action {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  border-radius: 14px;
+  padding: 0.82rem 0.95rem;
+  color: var(--muted);
+  transition: background 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.nav-link:hover,
+.sidebar-action:hover {
+  background: rgba(15, 23, 42, 0.045);
+  color: var(--text);
+}
+
+.nav-link.active {
+  background: rgba(15, 155, 142, 0.18);
+  color: #1bc99a;
+  box-shadow: inset 0 0 0 1px rgba(15, 155, 142, 0.28);
+  font-weight: 500;
+}
+
+.sidebar-spacer {
+  flex: 1;
+}
+
+.sidebar-footer {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.95rem 0.9rem 1.2rem;
+  border-top: 1px solid var(--line);
+  background: var(--surface-grad);
+}
+
+.app-main {
+  min-width: 0;
+  width: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  position: relative;
+}
+
+.topbar {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-grad-soft);
+  backdrop-filter: blur(18px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.topbar-title {
+  display: grid;
+  gap: 0.15rem;
+  flex-shrink: 0;
+  margin-right: 2rem;
+}
+
+.topbar-title h1 {
+  margin: 0;
+  font-size: 1.95rem;
+  letter-spacing: -0.04em;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
+}
+
+.topbar-quick-icons {
+  display: none;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.topbar-inline-icons {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.topbar-search {
+  width: 70%;
+}
+
+.icon-button {
+  display: inline-flex;
+  width: 2.7rem;
+  height: 2.7rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-grad);
+  color: var(--muted);
+  transition: border-color 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.icon-button:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+.theme-toggle {
+  display: inline-flex;
+  width: 2.7rem;
+  height: 2.7rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+}
+
+.profile-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.4rem 0.6rem 0.4rem 1rem;
+  background: var(--surface-muted);
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+
+.profile-menu {
+  position: relative;
+}
+
+.profile-chip-button {
+  text-align: left;
+  padding: 0.4rem 0.6rem 0.4rem 1rem;
+  background: var(--surface-muted);
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+
+.profile-chip-copy {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.profile-chip-label {
+  font-weight: 700;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 0.7rem);
+  right: 0;
+  width: min(320px, calc(100vw - 2rem));
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  border-radius: 24px;
+  border: 1px solid rgba(216, 222, 232, 0.88);
+  background: var(--surface-elevated);
+  box-shadow: var(--shadow-strong);
+  z-index: 24;
+}
+
+.profile-dropdown-head {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.profile-dropdown-avatar {
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+}
+
+.profile-dropdown-copy {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.profile-dropdown-copy strong {
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.profile-dropdown-meta {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.profile-dropdown-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.profile-dropdown-row .icon {
+  color: var(--accent-strong);
+}
+
+.profile-dropdown-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.65rem;
+}
+
+.profile-dropdown-button {
+  width: 100%;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.profile-avatar {
+  display: inline-flex;
+  width: 2.9rem;
+  height: 2.9rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--surface-muted), var(--surface-elevated));
+  color: var(--text);
+  font-weight: 700;
+}
+
+.page-content {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.85rem 2rem;
+  align-content: start;
+}
+
+
+/* --- Professional Responsive Overrides --- */
+
+@media (max-width: 1100px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 280px;
+    z-index: 20;
+    transform: translateX(-100%);
+  }
+
+  .sidebar.is-open {
+    transform: translateX(0);
+    box-shadow: 20px 0 50px rgba(0, 0, 0, 0.2);
+  }
+
+  .sidebar-mobile-layout .sidebar.is-open {
+    background: var(--surface);
+    background-image: none;
+  }
+
+  .topbar {
+    padding: 1rem 1.25rem;
+  }
+
+  .topbar-search {
+    display: none;
+  }
+
+  .topbar-quick-icons {
+    display: flex;
+  }
+
+  .profile-chip-copy {
+    display: none;
+  }
+  
+  .profile-dropdown {
+    right: 0;
+    width: min(320px, calc(100vw - 1.5rem));
+  }
+
+  .brand-block {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 1rem 1rem 0.95rem;
+  }
+
+  .brand-copy strong {
+    font-size: 1.1rem;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sidebar-toggle-in-panel {
+    margin-left: 0;
+    justify-self: end;
+  }
+}
+
+@media (min-width: 1101px) {
+  .sidebar {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .sidebar-toggle-mobile {
+    display: none;
+  }
+
+  .topbar .sidebar-toggle-mobile {
+    display: none;
+  }
+
+  .sidebar-toggle-in-panel {
+    display: inline-flex;
+  }
+
+  .sidebar-toggle-desktop-reopen {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 640px) {
+  .user-modal-backdrop {
+    align-items: flex-start;
+    padding: calc(env(safe-area-inset-top, 0px) + var(--modal-top-offset-mobile)) 0 0;
+  }
+
+  .user-modal,
+  .atc-monograph-modal {
+    width: 100%;
+    max-width: 100%;
+    min-height: calc(100dvh - (env(safe-area-inset-top, 0px) + var(--modal-top-offset-mobile)));
+    max-height: calc(100dvh - (env(safe-area-inset-top, 0px) + var(--modal-top-offset-mobile)));
+    margin: 0;
+    border-radius: 22px 22px 0 0;
+    border: 0;
+    padding: 1rem;
+    box-shadow: none;
+  }
+
+  .atc-monograph-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin: 0 0 0.35rem;
+    padding: 0.15rem 3.25rem 0.85rem 0;
+    background: var(--surface);
+  }
+
+  .atc-monograph-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .monograph-close-button {
+    top: 0.85rem;
+    right: 0.85rem;
+  }
+}
+
+/* --- Pharmacist Specific Styles --- */
+.pharmacist-tools {
+  padding: 2.4rem clamp(1.15rem, 3vw, 2rem);
+}
+
+.pharmacist-dispensing {
+  padding: clamp(1.15rem, 3vw, 1.7rem);
+}
+
+.pharmacist-tool-card {
+  padding: 1.15rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-elevated);
+  border: 1px solid rgba(216, 222, 232, 0.82);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+  transition: transform var(--motion-snappy), border-color var(--motion-fast), box-shadow var(--motion-fast), background var(--motion-fast);
+}
+
+.pharmacist-tool-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(15, 155, 142, 0.2);
+  box-shadow: var(--shadow-strong);
+}
+
+.pharmacist-tool-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 16px;
+  background: rgba(15, 155, 142, 0.08);
+  color: var(--accent-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pharmacist-visual-row {
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(15, 155, 142, 0.18), rgba(31, 111, 214, 0.12));
+}
+
+.pharmacist-visual-tag {
+  border-radius: 999px;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+}
+
+.pharmacist-dispensing-visual {
+  position: relative;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(216, 222, 232, 0.82);
+  box-shadow: 0 24px 52px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.pharmacist-dispensing-visual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent 40%, rgba(15, 155, 142, 0.12));
+  pointer-events: none;
+}
+
+.inventory-row-card {
+  padding: 1.15rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-elevated);
+  border: 1px solid rgba(216, 222, 232, 0.82);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+  transition: transform var(--motion-snappy), border-color var(--motion-fast), box-shadow var(--motion-fast), background var(--motion-fast);
+}
+
+.inventory-row-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(15, 155, 142, 0.2);
+  box-shadow: var(--shadow-strong);
+}
+
+.pharmacist-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.pharmacist-landing-footer {
+  padding: 1.6rem clamp(1.15rem, 3vw, 1.8rem);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  width: min(1120px, calc(100% - 2.4rem));
+  margin: 1.2rem auto 0;
+  border: 1px solid rgba(216, 222, 232, 0.88);
+  background: var(--glass);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+}
+
+.pharmacist-landing-copyright {
+  width: min(1120px, calc(100% - 2.4rem));
+  margin: 0 auto 1.4rem;
+  border: 1px solid rgba(216, 222, 232, 0.88);
+  border-top: 0;
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+}
+
+/* --- Admin Specific Styles --- */
+.admin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 1.35rem;
+  align-items: start;
+}
+
+.admin-toolbar {
+  display: flex;
+  align-items: stretch;
+  gap: 1rem;
+}
+
+.admin-summary-grid {
+  flex: 1;
+}
+
+.user-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  z-index: 260;
+  padding: calc(env(safe-area-inset-top, 0px) + 2rem) 1.25rem 1.5rem;
+}
+
+.user-modal {
+  width: min(560px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 28px 90px rgba(15, 23, 42, 0.22);
+  padding: 1.45rem;
+  display: grid;
+  gap: 1rem;
+  position: relative;
+}
+
+.manage-user-modal {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border-color: #cfd9e8;
+}
+
+.manage-user-profile {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.manage-user-profile strong {
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.manage-user-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.manage-user-meta-item {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.manage-user-actions {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+
+.manage-user-actions button {
+  flex: 1;
+}
+
+.manage-user-warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+  padding: 0.85rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid rgba(195, 122, 29, 0.15);
+}
+
+/* --- Dark Mode Clinical --- */
+html.dark .pharmacist-landing-header {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+html.dark .manage-user-modal {
+  background: var(--surface);
+  border-color: var(--line);
+}
+
+html.dark .user-modal {
+  background: var(--surface);
+  border-color: var(--line);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .user-modal-backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+html.dark .manage-user-profile,
+html.dark .manage-user-meta-item {
+  background: var(--surface-muted);
+  border-color: var(--line);
+}
+

@@ -1,37 +1,37 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import AuthLayout from '../layouts/AuthLayout';
 import RolePicker from '../components/RolePicker';
 import AppIcon from '../components/AppIcon';
+import DarkModeToggle from '../components/DarkModeToggle';
 import { login as loginRequest, getApiMessage } from '../api/pimsApi';
 import { ROLES, ROLE_LABELS } from '../constants/roles';
 import { getRoleHomePath, getStoredRole, isValidRole, setAuthSession } from '../utils/session';
 import { setAuthenticatedSession } from '../store/slices/authSlice';
 import useToast from '../hooks/useToast';
-
-const ROLE_EMAIL_DEFAULTS = {
-  [ROLES.DOCTOR]: 'doctor@pims.com',
-  [ROLES.PHARMACIST]: 'pharma@pims.com',
-  [ROLES.ADMIN]: 'admin@pims.com',
-  [ROLES.PATIENT]: ''
-};
+import '../styles/PatientLogin.css';
 
 const ROLE_HELPER_COPY = {
   [ROLES.DOCTOR]: 'Clinical access for prescribers and review workflows.',
   [ROLES.PHARMACIST]: 'Dispensing, inventory, and medication control access.',
   [ROLES.ADMIN]: 'Administrative access for user and system management.',
-  [ROLES.PATIENT]: 'Read-only access to your own prescriptions and summary information.'
+  [ROLES.NURSE]: 'Ward management, patient vitals, and bed tracking.',
+  [ROLES.RECEPTIONIST]: 'Patient registration and admission desk.',
+  [ROLES.CASHIER]: 'Billing, invoicing, and POS management.',
 };
 
-const ROLE_ICON = {
-  [ROLES.DOCTOR]: 'doctor',
-  [ROLES.PHARMACIST]: 'pharmacist',
-  [ROLES.ADMIN]: 'admin',
-  [ROLES.PATIENT]: 'users'
+const ROLE_EMAIL_DEFAULTS = {
+  [ROLES.DOCTOR]: 'doctor@pims.com',
+  [ROLES.PHARMACIST]: 'pharma@pims.com',
+  [ROLES.ADMIN]: 'admin@pims.com',
+  [ROLES.NURSE]: 'nurse@pims.com',
+  [ROLES.RECEPTIONIST]: 'recep@pims.com',
+  [ROLES.CASHIER]: 'cashier@pims.com',
 };
 
 const AUTH_RATE_LIMIT_KEY = 'pims_auth_rate_limit_until';
+const DEV_SEED_PASSWORD = 'test123';
+const isDevelopment = Boolean(import.meta.env.DEV);
 
 function parseStoredLockoutUntil() {
   const rawValue = localStorage.getItem(AUTH_RATE_LIMIT_KEY);
@@ -52,46 +52,33 @@ function getRateLimitResetAt(error) {
   if (Number.isFinite(retryAfter) && retryAfter > 0) {
     return Date.now() + (retryAfter * 1000);
   }
-
-  const rateLimitReset = Number(headers['ratelimit-reset']);
-  if (Number.isFinite(rateLimitReset) && rateLimitReset > 0) {
-    return Date.now() + (rateLimitReset * 1000);
-  }
-
   return Date.now() + (15 * 60 * 1000);
-}
-
-function getRoleAccessPath(role) {
-  switch (role) {
-    case ROLES.PHARMACIST:
-      return '/pharmacist/access';
-    case ROLES.PATIENT:
-      return '/patient/access';
-    case ROLES.ADMIN:
-      return '/admin/access';
-    case ROLES.DOCTOR:
-    default:
-      return '/doctor/access';
-  }
 }
 
 export default function Login({ forcedRole = null, showRolePicker = true, pageTitle, pageSubtitle }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const token = useSelector((state) => state.auth.token);
+  const user = useSelector((state) => state.auth.user);
   const storedRole = useSelector((state) => state.auth.role);
   const { notifyError, notifySuccess } = useToast();
-  const initialRole = isValidRole(forcedRole) ? forcedRole : ROLES.DOCTOR;
+
+  const queryParams = new URLSearchParams(location.search || '');
+  const queryRoleRaw = queryParams.get('role');
+  const queryRole = isValidRole(queryRoleRaw) ? queryRoleRaw : null;
+  const initialRole = isValidRole(forcedRole) ? forcedRole : (queryRole || ROLES.DOCTOR);
+  
   const [role, setRole] = useState(initialRole);
   const activeRole = isValidRole(forcedRole) ? forcedRole : role;
-  const [email, setEmail] = useState(ROLE_EMAIL_DEFAULTS[initialRole]);
-  const [password, setPassword] = useState('test123');
+  
+  const [email, setEmail] = useState(() => (isDevelopment ? ROLE_EMAIL_DEFAULTS[initialRole] || '' : ''));
+  const [password, setPassword] = useState(() => (isDevelopment ? DEV_SEED_PASSWORD : ''));
   const [rememberDevice, setRememberDevice] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [rateLimitResetAt, setRateLimitResetAt] = useState(() => parseStoredLockoutUntil());
   const [now, setNow] = useState(Date.now());
+
   const sessionExpiredReason = location.state?.reason === 'session-expired';
   const isRateLimited = rateLimitResetAt > now;
   const countdownLabel = isRateLimited ? formatCountdown(rateLimitResetAt - now) : '';
@@ -99,93 +86,51 @@ export default function Login({ forcedRole = null, showRolePicker = true, pageTi
   useEffect(() => {
     if (isValidRole(forcedRole)) {
       setRole(forcedRole);
+    } else if (queryRole) {
+      setRole(queryRole);
     }
-  }, [forcedRole]);
+  }, [forcedRole, queryRole]);
 
   useEffect(() => {
-    if (!rateLimitResetAt) {
-      localStorage.removeItem(AUTH_RATE_LIMIT_KEY);
-      setErrorMessage((current) => (
-        current.startsWith('Too many requests') ? '' : current
-      ));
-      return undefined;
+    if (rateLimitResetAt > 0) {
+      localStorage.setItem(AUTH_RATE_LIMIT_KEY, String(rateLimitResetAt));
+      const timerId = window.setInterval(() => {
+        setNow(Date.now());
+        if (Date.now() >= rateLimitResetAt) setRateLimitResetAt(0);
+      }, 1000);
+      return () => window.clearInterval(timerId);
     }
-
-    if (rateLimitResetAt <= Date.now()) {
-      setRateLimitResetAt(0);
-      localStorage.removeItem(AUTH_RATE_LIMIT_KEY);
-      setErrorMessage((current) => (
-        current.startsWith('Too many requests') ? '' : current
-      ));
-      return undefined;
-    }
-
-    localStorage.setItem(AUTH_RATE_LIMIT_KEY, String(rateLimitResetAt));
-
-    const timerId = window.setInterval(() => {
-      setNow(Date.now());
-      if (Date.now() >= rateLimitResetAt) {
-        setRateLimitResetAt(0);
-        localStorage.removeItem(AUTH_RATE_LIMIT_KEY);
-        setErrorMessage((current) => (
-          current.startsWith('Too many requests') ? '' : current
-        ));
-      }
-    }, 1000);
-
-    return () => window.clearInterval(timerId);
+    localStorage.removeItem(AUTH_RATE_LIMIT_KEY);
+    return undefined;
   }, [rateLimitResetAt]);
 
   useEffect(() => {
-    setEmail(ROLE_EMAIL_DEFAULTS[activeRole]);
-    setPassword('test123');
+    setEmail(isDevelopment ? (ROLE_EMAIL_DEFAULTS[activeRole] || '') : '');
+    setPassword(isDevelopment ? DEV_SEED_PASSWORD : '');
   }, [activeRole]);
 
-  if (token) {
+  if (user) {
     return <Navigate replace to={getRoleHomePath(storedRole || getStoredRole())} />;
   }
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (isRateLimited) {
-      const message = `Too many requests. Try again in ${countdownLabel}.`;
-      setErrorMessage(message);
-      notifyError('Login temporarily locked', message, 2400);
-      return;
-    }
+    if (isRateLimited) return;
 
     setIsSubmitting(true);
     setErrorMessage('');
 
     try {
       const data = await loginRequest({ email, password, role: activeRole });
-
-      if (!isValidRole(data?.user?.role)) {
-        throw new Error('Invalid role returned by server.');
-      }
-
-      setAuthSession({
-        token: data.token,
-        user: data.user,
-        rememberDevice
-      });
-      dispatch(setAuthenticatedSession({ token: data.token, user: data.user }));
-      notifySuccess('Signed in', `Welcome ${data.user?.firstName || data.user?.email || 'back'}.`, 2800);
+      setAuthSession({ user: data.user, rememberDevice });
+      dispatch(setAuthenticatedSession({ user: data.user }));
+      notifySuccess('Signed in', `Welcome ${data.user?.firstName || 'back'}.`, 2800);
       navigate(getRoleHomePath(data.user.role));
     } catch (error) {
       const isTooManyRequests = error?.response?.status === 429;
-      const message = isTooManyRequests
-        ? `Too many requests from this IP. Try again in ${formatCountdown(getRateLimitResetAt(error) - Date.now())}.`
-        : getApiMessage(error, 'Login failed');
-
-      if (isTooManyRequests) {
-        const resetAt = getRateLimitResetAt(error);
-        setRateLimitResetAt(resetAt);
-      }
-
-      if (!isTooManyRequests) {
-        setErrorMessage(message);
-      }
+      const message = isTooManyRequests ? `Locked until ${formatCountdown(getRateLimitResetAt(error) - Date.now())}` : getApiMessage(error, 'Login failed');
+      if (isTooManyRequests) setRateLimitResetAt(getRateLimitResetAt(error));
+      setErrorMessage(message);
       notifyError('Login failed', message, 4200);
     } finally {
       setIsSubmitting(false);
@@ -193,121 +138,104 @@ export default function Login({ forcedRole = null, showRolePicker = true, pageTi
   };
 
   return (
-    <AuthLayout>
-      <section className="login-card">
-        <div className="login-brand">
-          <span className="brand-mark">
-            <AppIcon name={ROLE_ICON[activeRole] || 'brand'} size={22} />
-          </span>
-          <strong>
-            {isValidRole(forcedRole) ? `${ROLE_LABELS[activeRole]} Access` : 'PIMS'}
-          </strong>
-          <div>
-            <h1>
-              {pageTitle || (isValidRole(forcedRole) ? `Sign in as ${ROLE_LABELS[activeRole]}` : 'Sign in to PIMS')}
-            </h1>
-            <p className="helper-text">
-              {pageSubtitle || ROLE_HELPER_COPY[activeRole] || 'Pharmacy Information Management System'}
+    <div className="pl-root">
+      <header className="pl-top-nav">
+        <Link to="/" className="pl-nav-brand">
+          <AppIcon name="brand" size={24} color="#1bc99a" />
+          <span>PIMS CLINICAL</span>
+        </Link>
+        <DarkModeToggle />
+      </header>
+
+      <main className="pl-main-content">
+        <section className="pl-visual-col">
+          <img src="/hospital_hero.png" alt="PIMS Staff" className="pl-hero-img" />
+          <div className="pl-hero-overlay" />
+          <div className="pl-hero-content">
+            <h2 className="pl-hero-title">
+              Precision <br/> 
+              <span className="pl-hero-gradient">Care.</span>
+            </h2>
+            <p style={{ fontSize: '1.25rem', opacity: 0.9, lineHeight: 1.6 }}>
+              The PIMS clinical engine provides real-time insights, 
+              secure medication management, and seamless hospital-wide coordination.
             </p>
           </div>
-        </div>
+        </section>
 
-        <form className="form-grid" onSubmit={handleSubmit}>
-          {sessionExpiredReason ? (
-            <div className="helper-text" style={{ color: 'var(--warning)', marginBottom: '-0.2rem', textAlign: 'center' }}>
-              Your previous session ended. Sign in again to continue.
-            </div>
-          ) : null}
+        <section className="pl-auth-side">
+          <div className="pl-auth-card">
+            <header className="pl-auth-header">
+              <h1 className="pl-auth-title">{pageTitle || `Sign in as ${ROLE_LABELS[activeRole]}`}</h1>
+              <p className="pl-auth-subtitle">{pageSubtitle || ROLE_HELPER_COPY[activeRole]}</p>
+            </header>
 
-          {isRateLimited ? (
-            <div className="helper-text" style={{ color: 'var(--warning)', marginBottom: '-0.2rem', textAlign: 'center' }}>
-              Too many requests from this IP. Try again in {countdownLabel}.
-            </div>
-          ) : null}
+            <form className="pl-auth-form" onSubmit={handleSubmit}>
+              {sessionExpiredReason && (
+                <div className="pl-auth-error" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#d97706', borderColor: 'transparent' }}>
+                  Your session has expired. Please sign in again.
+                </div>
+              )}
 
-          {showRolePicker && !isValidRole(forcedRole) ? (
-            <div className="toolbar" style={{ marginBottom: '-0.2rem' }}>
-              <strong>I am a...</strong>
-              <span className="caption">Select role</span>
-            </div>
-          ) : null}
+              {showRolePicker && !isValidRole(forcedRole) && !queryRole && (
+                <div className="pl-field">
+                  <label>Authorized Role</label>
+                  <RolePicker value={role} onChange={setRole} />
+                </div>
+              )}
 
-          {showRolePicker && !isValidRole(forcedRole) ? <RolePicker value={role} onChange={setRole} /> : null}
+              <div className="pl-field">
+                <label>Work Email</label>
+                <div className="pl-input-box">
+                  <AppIcon name="users" size={20} />
+                  <input
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder="name@pims.com"
+                    type="email"
+                    value={email}
+                    required
+                  />
+                </div>
+              </div>
 
-          {isValidRole(forcedRole) ? (
-            <div className="login-role-badge">
-              <span className="badge badge-accent">
-                <AppIcon name={ROLE_ICON[activeRole] || 'users'} size={14} />
-                {ROLE_LABELS[activeRole]} login
-              </span>
-            </div>
-          ) : null}
+              <div className="pl-field">
+                <div className="pl-field-label-row">
+                  <label>Secure Password</label>
+                  <Link to="/forgot-password">Forgot password?</Link>
+                </div>
+                <div className="pl-input-box">
+                  <AppIcon name="shield" size={20} />
+                  <input 
+                    onChange={(event) => setPassword(event.target.value)} 
+                    type="password" 
+                    value={password} 
+                    required
+                  />
+                </div>
+              </div>
 
-          <label className="field-label">
-            <span>Work Email</span>
-            <div className="search-field">
-              <AppIcon name="users" size={16} />
-              <input
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder={isValidRole(forcedRole) && activeRole === ROLES.PATIENT ? 'patient@example.com' : undefined}
-                type="email"
-                value={email}
-              />
-            </div>
-          </label>
+              <label className="pl-remember">
+                <input
+                  checked={rememberDevice}
+                  onChange={(event) => setRememberDevice(event.target.checked)}
+                  type="checkbox"
+                />
+                <span>Stay signed in for 30 days</span>
+              </label>
 
-          <label className="field-label">
-            <div className="toolbar">
-              <span>Password</span>
-              <Link className="helper-text" to="/forgot-password">Forgot password?</Link>
-            </div>
-            <div className="search-field">
-              <AppIcon name="shield" size={16} />
-              <input onChange={(event) => setPassword(event.target.value)} type="password" value={password} />
-            </div>
-          </label>
+              {errorMessage && <div className="pl-auth-error">{errorMessage}</div>}
 
-          <label className="checkbox-row">
-            <input
-              checked={rememberDevice}
-              onChange={(event) => setRememberDevice(event.target.checked)}
-              type="checkbox"
-            />
-            <span>Remember this device for 30 days</span>
-          </label>
+              <button className="button-primary pl-auth-submit" disabled={isSubmitting || isRateLimited} type="submit">
+                {isSubmitting ? 'Verifying...' : isRateLimited ? `Locked (${countdownLabel})` : 'Access Dashboard'}
+              </button>
+            </form>
 
-          {!isRateLimited && errorMessage ? (
-            <div className="helper-text" style={{ color: 'var(--danger)', textAlign: 'center' }}>
-              {errorMessage}
-            </div>
-          ) : null}
-
-          <button className="button-primary login-submit" disabled={isSubmitting || isRateLimited} type="submit">
-            {isSubmitting ? 'Signing in...' : isRateLimited ? `Try again in ${countdownLabel}` : `Continue as ${ROLE_LABELS[activeRole]}`}
-          </button>
-
-          <div className="helper-text" style={{ textAlign: 'center' }}>
-            By signing in, you agree to the HIPAA Compliance Standards and Terms of Use.
+            <footer className="pl-auth-footer">
+              <p>Institutional access governed by HIPAA & GDPR security protocols.</p>
+            </footer>
           </div>
-
-          {isValidRole(forcedRole) ? (
-            <div className="helper-text" style={{ textAlign: 'center' }}>
-              <Link className="button-ghost" to={getRoleAccessPath(activeRole)}>Back to {ROLE_LABELS[activeRole]} page</Link>
-            </div>
-          ) : null}
-        </form>
-
-        <div className="footer-note">
-          <span className="badge">
-            <AppIcon name="shield" size={14} />
-            Secure SSL Encrypted
-          </span>
-          <span className="badge">
-            <AppIcon name="doctor" size={14} />
-            doctor@pims.com / test123
-          </span>
-        </div>
-      </section>
-    </AuthLayout>
+        </section>
+      </main>
+    </div>
   );
 }

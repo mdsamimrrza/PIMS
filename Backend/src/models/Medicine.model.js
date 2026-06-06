@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+const mongoose = require('mongoose');
 
 const medicineSchema = new mongoose.Schema(
   {
@@ -47,15 +47,15 @@ const medicineSchema = new mongoose.Schema(
   {
     timestamps: true,
   }
-)
+);
 
 medicineSchema.set('toJSON', {
   transform: (_doc, ret) => {
-    delete ret.__v
-    return ret
+    delete ret.__v;
+    return ret;
   },
-})
+});
 
-const Medicine = mongoose.models.Medicine || mongoose.model('Medicine', medicineSchema)
+const Medicine = mongoose.models.Medicine || mongoose.model('Medicine', medicineSchema);
 
-export default Medicine
+module.exports = Medicine;

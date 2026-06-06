@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema(
   {
@@ -25,8 +25,13 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['DOCTOR', 'PHARMACIST', 'ADMIN', 'PATIENT'],
+      enum: ['admin', 'doctor', 'pharmacist', 'patient', 'nurse', 'receptionist', 'cashier', 'lab_tech'],
       required: true,
+    },
+    department: {
+      type: String,
+      trim: true,
+      default: '',
     },
     isActive: {
       type: Boolean,
@@ -60,23 +65,24 @@ const userSchema = new mongoose.Schema(
   {
     timestamps: true,
   }
-)
+);
 
 userSchema.set('toJSON', {
   transform: (_doc, ret) => {
-    delete ret.passwordHash
-    delete ret.passwordResetTokenHash
-    delete ret.passwordResetTokenExpiresAt
-    delete ret.passwordChangedAt
-    delete ret.__v
-    return ret
+    ret.id = ret._id?.toString?.() || ret.id;
+    delete ret.passwordHash;
+    delete ret.passwordResetTokenHash;
+    delete ret.passwordResetTokenExpiresAt;
+    delete ret.passwordChangedAt;
+    delete ret.__v;
+    return ret;
   },
-})
+});
 
 userSchema.methods.toSafeObject = function toSafeObject() {
-  return this.toJSON()
-}
+  return this.toJSON();
+};
 
-const User = mongoose.models.User || mongoose.model('User', userSchema)
+const User = mongoose.models.User || mongoose.model('User', userSchema);
 
-export default User
+module.exports = User;

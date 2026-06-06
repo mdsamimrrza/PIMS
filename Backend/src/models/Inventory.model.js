@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+const mongoose = require('mongoose');
 
 const inventorySchema = new mongoose.Schema(
   {
@@ -46,20 +46,20 @@ const inventorySchema = new mongoose.Schema(
   {
     timestamps: true,
   }
-)
+);
 
-inventorySchema.index({ medicineId: 1, batchId: 1 }, { unique: true })
-inventorySchema.index({ atcCode: 1, createdAt: -1 })
-inventorySchema.index({ status: 1, createdAt: -1 })
-inventorySchema.index({ expiryDate: 1 })
+inventorySchema.index({ medicineId: 1, batchId: 1 }, { unique: true });
+inventorySchema.index({ atcCode: 1, createdAt: -1 });
+inventorySchema.index({ status: 1, createdAt: -1 });
+inventorySchema.index({ expiryDate: 1 });
 
 inventorySchema.set('toJSON', {
   transform: (_doc, ret) => {
-    delete ret.__v
-    return ret
+    delete ret.__v;
+    return ret;
   },
-})
+});
 
-const Inventory = mongoose.models.Inventory || mongoose.model('Inventory', inventorySchema)
+const Inventory = mongoose.models.Inventory || mongoose.model('Inventory', inventorySchema);
 
-export default Inventory
+module.exports = Inventory;

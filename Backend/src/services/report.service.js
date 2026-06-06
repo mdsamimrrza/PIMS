@@ -1,44 +1,44 @@
-import Alert from '../models/Alert.model.js'
-import Inventory from '../models/Inventory.model.js'
-import Patient from '../models/Patient.model.js'
-import Prescription from '../models/Prescription.model.js'
-import User from '../models/User.model.js'
+const Alert = require('../models/Alert.model');
+const Inventory = require('../models/Inventory.model');
+const Patient = require('../models/Patient.model');
+const Prescription = require('../models/Prescription.model');
+const User = require('../models/User.model');
 
 const buildDateFilter = (filters = {}) => {
-  const range = {}
-  const from = filters.from ?? filters.dateFrom
-  const to = filters.to ?? filters.dateTo
+  const range = {};
+  const from = filters.from ?? filters.dateFrom;
+  const to = filters.to ?? filters.dateTo;
 
   if (from) {
-    const fromDate = new Date(from)
+    const fromDate = new Date(from);
     if (!Number.isNaN(fromDate.getTime())) {
-      range.$gte = fromDate
+      range.$gte = fromDate;
     }
   }
 
   if (to) {
-    const toDate = new Date(to)
+    const toDate = new Date(to);
     if (!Number.isNaN(toDate.getTime())) {
-      toDate.setHours(23, 59, 59, 999)
-      range.$lte = toDate
+      toDate.setHours(23, 59, 59, 999);
+      range.$lte = toDate;
     }
   }
 
-  return Object.keys(range).length > 0 ? { createdAt: range } : {}
-}
+  return Object.keys(range).length > 0 ? { createdAt: range } : {};
+};
 
 const getUsageLimit = (filters = {}) => {
-  const value = Number(filters.limit ?? 10)
+  const value = Number(filters.limit ?? 10);
 
   if (!Number.isFinite(value) || value < 1) {
-    return 10
+    return 10;
   }
 
-  return Math.min(Math.trunc(value), 50)
-}
+  return Math.min(Math.trunc(value), 50);
+};
 
-export const getSummaryReport = async (filters = {}) => {
-  const prescriptionDateFilter = buildDateFilter(filters)
+const getSummaryReport = async (filters = {}) => {
+  const prescriptionDateFilter = buildDateFilter(filters);
 
   const [
     activeUsers,
@@ -57,22 +57,22 @@ export const getSummaryReport = async (filters = {}) => {
     ]),
     Prescription.countDocuments(prescriptionDateFilter),
     Inventory.find().populate('medicineId', 'mrp').lean(),
-  ])
+  ]);
 
   const statusCounts = prescriptionsByStatus.reduce((accumulator, item) => {
-    accumulator[item._id] = item.count
-    return accumulator
-  }, {})
+    accumulator[item._id] = item.count;
+    return accumulator;
+  }, {});
 
   const inventorySnapshot = inventoryItems.reduce(
     (summary, item) => {
-      summary.totalItems += 1
-      summary.totalUnits += Number(item.currentStock || 0)
-      summary.inventoryValue += Number(item.currentStock || 0) * Number(item.medicineId?.mrp || 0)
-      return summary
+      summary.totalItems += 1;
+      summary.totalUnits += Number(item.currentStock || 0);
+      summary.inventoryValue += Number(item.currentStock || 0) * Number(item.medicineId?.mrp || 0);
+      return summary;
     },
     { totalItems: 0, totalUnits: 0, inventoryValue: 0 }
-  )
+  );
 
   return {
     filters: {
@@ -95,12 +95,12 @@ export const getSummaryReport = async (filters = {}) => {
       Filled: statusCounts.Filled || 0,
       Cancelled: statusCounts.Cancelled || 0,
     },
-  }
-}
+  };
+};
 
-export const getAtcUsageReport = async (filters = {}) => {
-  const dateFilter = buildDateFilter(filters)
-  const limit = getUsageLimit(filters)
+const getAtcUsageReport = async (filters = {}) => {
+  const dateFilter = buildDateFilter(filters);
+  const limit = getUsageLimit(filters);
 
   const usage = await Prescription.aggregate([
     { $match: dateFilter },
@@ -118,7 +118,7 @@ export const getAtcUsageReport = async (filters = {}) => {
     },
     { $sort: { prescriptions: -1, _id: 1 } },
     { $limit: limit },
-  ])
+  ]);
 
   return {
     filters: {
@@ -131,11 +131,11 @@ export const getAtcUsageReport = async (filters = {}) => {
       prescriptions: item.prescriptions,
       urgentCount: item.urgentCount,
     })),
-  }
-}
+  };
+};
 
-export const getFulfillmentReport = async (filters = {}) => {
-  const dateFilter = buildDateFilter(filters)
+const getFulfillmentReport = async (filters = {}) => {
+  const dateFilter = buildDateFilter(filters);
 
   const [statusCounts, filledMetrics, dailyVolume] = await Promise.all([
     Prescription.aggregate([
@@ -177,17 +177,17 @@ export const getFulfillmentReport = async (filters = {}) => {
       { $sort: { _id: 1 } },
       { $limit: 30 },
     ]),
-  ])
+  ]);
 
   const mappedStatusCounts = statusCounts.reduce((accumulator, item) => {
-    accumulator[item._id] = item.count
-    return accumulator
-  }, {})
+    accumulator[item._id] = item.count;
+    return accumulator;
+  }, {});
 
   const filled = filledMetrics[0] || {
     filledCount: 0,
     averageFulfillmentHours: 0,
-  }
+  };
 
   return {
     filters: {
@@ -208,36 +208,36 @@ export const getFulfillmentReport = async (filters = {}) => {
       date: item._id,
       count: item.count,
     })),
-  }
-}
+  };
+};
 
 const getPatientForActor = async (actor) => {
-  const userId = actor?.id || actor?._id
+  const userId = actor?.id || actor?._id;
 
   if (!userId) {
-    const error = new Error('Patient account is not linked to a patient record')
-    error.statusCode = 403
-    throw error
+    const error = new Error('Patient account is not linked to a patient record');
+    error.statusCode = 403;
+    throw error;
   }
 
-  const patient = await Patient.findOne({ userId })
+  const patient = await Patient.findOne({ userId });
 
   if (!patient) {
-    const error = new Error('Patient account is not linked to a patient record')
-    error.statusCode = 403
-    throw error
+    const error = new Error('Patient account is not linked to a patient record');
+    error.statusCode = 403;
+    throw error;
   }
 
-  return patient
-}
+  return patient;
+};
 
-export const getPatientSummaryReport = async (actor, filters = {}) => {
-  const patient = await getPatientForActor(actor)
-  const dateFilter = buildDateFilter(filters)
+const getPatientSummaryReport = async (actor, filters = {}) => {
+  const patient = await getPatientForActor(actor);
+  const dateFilter = buildDateFilter(filters);
   const match = {
     ...dateFilter,
     patientId: patient._id,
-  }
+  };
 
   const [statusCounts, latestPrescription] = await Promise.all([
     Prescription.aggregate([
@@ -245,14 +245,14 @@ export const getPatientSummaryReport = async (actor, filters = {}) => {
       { $group: { _id: '$status', count: { $sum: 1 } } },
     ]),
     Prescription.findOne(match).sort({ createdAt: -1 }).select('rxId status createdAt isUrgent').lean(),
-  ])
+  ]);
 
   const mappedStatusCounts = statusCounts.reduce((accumulator, item) => {
-    accumulator[item._id] = item.count
-    return accumulator
-  }, {})
+    accumulator[item._id] = item.count;
+    return accumulator;
+  }, {});
 
-  const totalPrescriptions = Object.values(mappedStatusCounts).reduce((sum, value) => sum + value, 0)
+  const totalPrescriptions = Object.values(mappedStatusCounts).reduce((sum, value) => sum + value, 0);
 
   return {
     filters: {
@@ -274,5 +274,12 @@ export const getPatientSummaryReport = async (actor, filters = {}) => {
       latestPrescriptionDate: latestPrescription?.createdAt || null,
       latestPrescriptionId: latestPrescription?.rxId || null,
     },
-  }
-}
+  };
+};
+
+module.exports = {
+  getSummaryReport,
+  getAtcUsageReport,
+  getFulfillmentReport,
+  getPatientSummaryReport
+};

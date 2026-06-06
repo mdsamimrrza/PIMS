@@ -1,30 +1,17 @@
-import { Router } from 'express'
-import {
-  createNewMedicine,
-  getAllMedicines,
-  getMedicine,
-  removeExistingMedicine,
-  updateExistingMedicine,
-  checkInteractions,
-} from '../controllers/medicine.controller.js'
-import { verifyToken } from '../middlewares/auth.middleware.js'
-import { requireRole } from '../middlewares/role.middleware.js'
-import {
-  validateCreateMedicine,
-  validateMedicineIdParam,
-  validateMedicineQuery,
-  validateUpdateMedicine,
-} from '../validators/medicine.validator.js'
+const express = require('express');
+const router = express.Router();
+const medicineController = require('../controllers/medicine.controller');
+const { verifyToken } = require('../middlewares/auth.middleware');
+const { requireRole } = require('../middlewares/role.middleware');
+const medicineValidator = require('../validators/medicine.validator');
 
-const router = Router()
+router.use(verifyToken);
 
-router.use(verifyToken)
+router.get('/', medicineValidator.validateMedicineQuery, medicineController.getAllMedicines);
+router.post('/interactions', requireRole('doctor', 'pharmacist', 'admin'), medicineController.checkInteractions);
+router.get('/:id', medicineValidator.validateMedicineIdParam, medicineController.getMedicine);
+router.post('/', requireRole('admin', 'pharmacist'), medicineValidator.validateCreateMedicine, medicineController.createNewMedicine);
+router.put('/:id', requireRole('admin'), medicineValidator.validateUpdateMedicine, medicineController.updateExistingMedicine);
+router.delete('/:id', requireRole('admin'), medicineValidator.validateMedicineIdParam, medicineController.removeExistingMedicine);
 
-router.get('/', validateMedicineQuery, getAllMedicines)
-router.post('/interactions', requireRole('DOCTOR', 'PHARMACIST', 'ADMIN'), checkInteractions)
-router.get('/:id', validateMedicineIdParam, getMedicine)
-router.post('/', requireRole('ADMIN', 'PHARMACIST'), validateCreateMedicine, createNewMedicine)
-router.put('/:id', requireRole('ADMIN'), validateUpdateMedicine, updateExistingMedicine)
-router.delete('/:id', requireRole('ADMIN'), validateMedicineIdParam, removeExistingMedicine)
-
-export default router
+module.exports = router;

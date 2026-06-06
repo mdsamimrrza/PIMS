@@ -1,17 +1,22 @@
-import rateLimit from 'express-rate-limit'
+const rateLimit = require('express-rate-limit');
 
-export const apiLimiter = rateLimit({
+const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // Increased for dev
   message: { message: 'Too many requests from this IP, please try again after 15 minutes' },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-})
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
-export const authLimiter = rateLimit({
+const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Limit each IP to 10 login/auth requests per `window`
+  max: process.env.NODE_ENV === 'production' ? 10 : 50, // Increased for dev
   message: { message: 'Too many authentication attempts from this IP, please try again after 15 minutes' },
   standardHeaders: true,
   legacyHeaders: false,
-})
+});
+
+module.exports = {
+  apiLimiter,
+  authLimiter
+};

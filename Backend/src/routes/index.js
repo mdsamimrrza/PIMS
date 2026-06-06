@@ -1,26 +1,42 @@
-import { Router } from 'express'
-import healthRoutes from './health.routes.js'
-import authRoutes from './auth.routes.js'
-import userRoutes from './user.routes.js'
-import atcRoutes from './atc.routes.js'
-import medicineRoutes from './medicine.routes.js'
-import patientRoutes from './patient.routes.js'
-import prescriptionRoutes from './prescription.routes.js'
-import inventoryRoutes from './inventory.routes.js'
-import alertRoutes from './alert.routes.js'
-import reportRoutes from './report.routes.js'
+const express = require('express');
+const router = express.Router();
 
-const router = Router()
+const healthRoutes = require('./health.routes');
+const authRoutes = require('./auth.routes');
+const userRoutes = require('./user.routes');
+const atcRoutes = require('./atc.routes');
+const medicineRoutes = require('./medicine.routes');
+const patientRoutes = require('./patient.routes');
+const prescriptionRoutes = require('./prescription.routes');
+const inventoryRoutes = require('./inventory.routes');
+const alertRoutes = require('./alert.routes');
+const reportRoutes = require('./report.routes');
+const pharmacyRoutes = require('./pharmacy.routes');
+const billingRoutes = require('./billing.routes');
+const admissionRoutes = require('./admission.routes');
+const appointmentRoutes = require('./appointment.routes');
+const bedRoutes = require('./bed.routes');
+const emergencyRoutes = require('./emergency.routes');
+const vitalsRoutes = require('./vitals.routes');
+const auditRoutes = require('./audit.routes');
 
-router.use('/health', healthRoutes)
-router.use('/auth', authRoutes)
-router.use('/users', userRoutes)
-router.use('/atc', atcRoutes)
-router.use('/medicines', medicineRoutes)
-router.use('/patients', patientRoutes)
-router.use('/prescriptions', prescriptionRoutes)
-router.use('/inventory', inventoryRoutes)
-router.use('/alerts', alertRoutes)
-router.use('/reports', reportRoutes)
+router.use('/health', healthRoutes);
+router.use('/auth', authRoutes);
+router.use('/users', userRoutes);
+router.use('/atc', atcRoutes);
+router.use('/medicines', medicineRoutes);
+router.use('/patients', patientRoutes);
+router.use('/prescriptions', prescriptionRoutes);
+router.use('/inventory', inventoryRoutes);
+router.use('/alerts', alertRoutes);
+router.use('/reports', reportRoutes);
+router.use('/pharmacy', pharmacyRoutes);
+router.use('/billing', billingRoutes);
+router.use('/admissions', admissionRoutes);
+router.use('/beds', bedRoutes);
+router.use('/appointments', appointmentRoutes);
+router.use('/emergency', emergencyRoutes);
+router.use('/vitals', vitalsRoutes);
+router.use('/audit', auditRoutes);
 
-export default router
+module.exports = router;

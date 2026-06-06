@@ -1,35 +1,23 @@
-import { Router } from 'express'
-import {
-  createNewPatient,
-  createPatientPortalUser,
-  getAllPatients,
-  getMyPatientRecord,
-  getSinglePatient,
-} from '../controllers/patient.controller.js'
-import { verifyToken } from '../middlewares/auth.middleware.js'
-import { requireRole } from '../middlewares/role.middleware.js'
-import {
-  validateCreatePatient,
-  validateCreatePatientPortalAccount,
-  validatePatientIdParam,
-  validatePatientQuery,
-} from '../validators/patient.validator.js'
+const express = require('express');
+const router = express.Router();
+const patientController = require('../controllers/patient.controller');
+const { verifyToken } = require('../middlewares/auth.middleware');
+const { requireRole } = require('../middlewares/role.middleware');
+const patientValidator = require('../validators/patient.validator');
 
-const router = Router()
+router.use(verifyToken);
 
-router.use(verifyToken)
+router.get('/me', requireRole('patient'), patientController.getMyPatientRecord);
 
-router.get('/me', requireRole('PATIENT'), getMyPatientRecord)
-
-router.get('/', requireRole('DOCTOR', 'ADMIN'), validatePatientQuery, getAllPatients)
-router.post('/', requireRole('DOCTOR'), validateCreatePatient, createNewPatient)
+router.get('/', requireRole('doctor', 'admin', 'receptionist'), patientValidator.validatePatientQuery, patientController.getAllPatients);
+router.post('/', requireRole('doctor', 'receptionist'), patientValidator.validateCreatePatient, patientController.createNewPatient);
 router.post(
   '/:id/portal-account',
-  requireRole('ADMIN'),
-  validatePatientIdParam,
-  validateCreatePatientPortalAccount,
-  createPatientPortalUser
-)
-router.get('/:id', requireRole('DOCTOR', 'ADMIN'), validatePatientIdParam, getSinglePatient)
+  requireRole('admin'),
+  patientValidator.validatePatientIdParam,
+  patientValidator.validateCreatePatientPortalAccount,
+  patientController.createPatientPortalUser
+);
+router.get('/:id', requireRole('doctor', 'admin', 'receptionist'), patientValidator.validatePatientIdParam, patientController.getSinglePatient);
 
-export default router
+module.exports = router;

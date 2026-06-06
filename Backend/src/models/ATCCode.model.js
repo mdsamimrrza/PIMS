@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+const mongoose = require('mongoose');
 
 const atcCodeSchema = new mongoose.Schema(
   {
@@ -33,8 +33,8 @@ const atcCodeSchema = new mongoose.Schema(
   {
     timestamps: true,
   }
-)
+);
 
-const ATCCode = mongoose.models.ATCCode || mongoose.model('ATCCode', atcCodeSchema)
+const ATCCode = mongoose.models.ATCCode || mongoose.model('ATCCode', atcCodeSchema);
 
-export default ATCCode
+module.exports = ATCCode;

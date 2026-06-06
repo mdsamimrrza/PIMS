@@ -4,11 +4,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import Topbar from '../components/Topbar';
 import AppIcon from '../components/AppIcon';
 import { getNavigationForRole } from '../constants/navigation';
+import { getEmergencyQueue } from '../api/pimsApi';
 import { ROLES } from '../constants/roles';
 import { logout } from '../api/pimsApi';
-import { clearSession, getRoleAccessPath, getStoredRole } from '../utils/session';
+import { clearSession, getRoleAccessPath, getStoredRole, getRoleHomePath } from '../utils/session';
 import { clearAuthState } from '../store/slices/authSlice';
 import { ROLE_LABELS } from '../constants/roles';
+import '../styles/ProfessionalPortal.css';
 
 function navLinkClass({ isActive }) {
   return isActive ? 'nav-link active' : 'nav-link';
@@ -28,6 +30,7 @@ export default function MainLayout({ children }) {
     return stored !== 'false';
   });
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [hasUrgentEmergency, setHasUrgentEmergency] = useState(false);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 1100px)');
@@ -55,6 +58,24 @@ export default function MainLayout({ children }) {
   useEffect(() => {
     localStorage.setItem(SIDEBAR_PREFERENCE_KEY, isDesktopSidebarOpen ? 'true' : 'false');
   }, [isDesktopSidebarOpen]);
+
+  useEffect(() => {
+    const pollEmergency = async () => {
+      try {
+        const queue = await getEmergencyQueue();
+        const urgent = queue.some(v => v.triageScore <= 2 && v.status === 'waiting');
+        setHasUrgentEmergency(urgent);
+      } catch (err) {
+        console.error('Failed to poll emergency queue', err);
+      }
+    };
+
+    if (['doctor', 'nurse', 'pharmacist', 'admin'].includes(role)) {
+      pollEmergency();
+      const interval = setInterval(pollEmergency, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [role]);
 
   const isSidebarOpen = isMobileViewport ? isMobileSidebarOpen : isDesktopSidebarOpen;
 
@@ -103,13 +124,7 @@ export default function MainLayout({ children }) {
             aria-label="Go to dashboard"
             className="brand-mark"
             onClick={() => {
-              const homeRoute = role === ROLES.DOCTOR
-                ? '/dashboard'
-                : role === ROLES.PHARMACIST
-                  ? '/pharmacist'
-                  : role === ROLES.ADMIN
-                    ? '/admin'
-                    : '/patient';
+              const homeRoute = getRoleHomePath(role);
               navigate(homeRoute);
             }}
             type="button"
@@ -128,7 +143,16 @@ export default function MainLayout({ children }) {
         <nav aria-label="Primary navigation" className="sidebar-nav">
           {navigation.map((item) => (
             <NavLink end key={item.to} className={navLinkClass} onClick={closeMobileSidebar} to={item.to}>
-              <AppIcon name={item.icon} size={18} />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <AppIcon name={item.icon} size={18} />
+                {item.to === '/emergency/queue' && hasUrgentEmergency && (
+                  <div style={{ 
+                    position: 'absolute', top: '-4px', right: '-4px', 
+                    width: '8px', height: '8px', borderRadius: '50%', 
+                    background: 'var(--danger)', border: '2px solid var(--surface)' 
+                  }} />
+                )}
+              </div>
               <span>{item.label}</span>
             </NavLink>
           ))}

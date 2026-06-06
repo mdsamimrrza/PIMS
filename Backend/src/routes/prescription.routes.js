@@ -1,30 +1,54 @@
-import { Router } from 'express'
-import {
-  createNewPrescription,
-  downloadPrescriptionPdf,
-  getAllPrescriptions,
-  getPrescription,
-  updateDraft,
-  updateExistingPrescriptionStatus,
-} from '../controllers/prescription.controller.js'
-import { verifyToken } from '../middlewares/auth.middleware.js'
-import { requireRole } from '../middlewares/role.middleware.js'
-import {
-  validateCreatePrescription,
-  validatePrescriptionIdParam,
-  validatePrescriptionQuery,
-  validateUpdatePrescriptionStatus,
-} from '../validators/prescription.validator.js'
+const express = require('express');
+const router = express.Router();
+const prescriptionController = require('../controllers/prescription.controller');
+const { verifyToken } = require('../middlewares/auth.middleware');
+const { requireRole } = require('../middlewares/role.middleware');
+const allergyCheck = require('../middlewares/allergyCheck.middleware');
+const prescriptionValidator = require('../validators/prescription.validator');
 
-const router = Router()
+router.use(verifyToken);
 
-router.use(verifyToken)
+router.get(
+  '/', 
+  requireRole('doctor', 'pharmacist', 'patient', 'admin'), 
+  prescriptionValidator.validatePrescriptionQuery, 
+  prescriptionController.getAllPrescriptions
+);
 
-router.get('/', requireRole('DOCTOR', 'PHARMACIST', 'PATIENT'), validatePrescriptionQuery, getAllPrescriptions)
-router.post('/', requireRole('DOCTOR'), validateCreatePrescription, createNewPrescription)
-router.get('/:id/pdf', requireRole('DOCTOR', 'PHARMACIST', 'PATIENT'), validatePrescriptionIdParam, downloadPrescriptionPdf)
-router.get('/:id', requireRole('DOCTOR', 'PHARMACIST', 'PATIENT'), validatePrescriptionIdParam, getPrescription)
-router.patch('/:id', requireRole('DOCTOR'), validatePrescriptionIdParam, updateDraft)
-router.put('/:id/status', requireRole('PHARMACIST'), validateUpdatePrescriptionStatus, updateExistingPrescriptionStatus)
+router.post(
+  '/', 
+  requireRole('doctor'), 
+  prescriptionValidator.validateCreatePrescription, 
+  allergyCheck, 
+  prescriptionController.createNewPrescription
+);
 
-export default router
+router.get(
+  '/:id/pdf', 
+  requireRole('doctor', 'pharmacist', 'patient', 'admin'), 
+  prescriptionValidator.validatePrescriptionIdParam, 
+  prescriptionController.downloadPrescriptionPdf
+);
+
+router.get(
+  '/:id', 
+  requireRole('doctor', 'pharmacist', 'patient', 'admin'), 
+  prescriptionValidator.validatePrescriptionIdParam, 
+  prescriptionController.getPrescription
+);
+
+router.patch(
+  '/:id', 
+  requireRole('doctor'), 
+  prescriptionValidator.validatePrescriptionIdParam, 
+  prescriptionController.updateDraft
+);
+
+router.put(
+  '/:id/status', 
+  requireRole('pharmacist', 'admin'), 
+  prescriptionValidator.validateUpdatePrescriptionStatus, 
+  prescriptionController.updateExistingPrescriptionStatus
+);
+
+module.exports = router;

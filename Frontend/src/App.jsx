@@ -1,15 +1,18 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, Suspense, lazy } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import AppRoutes from './routes/AppRoutes';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
+const AppRoutes = lazy(() => import('./routes/AppRoutes'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 import { SESSION_EXPIRED_EVENT } from './api/pimsApi';
 import { clearAuthState, hydrateAuthSession } from './store/slices/authSlice';
 import { pushToast } from './store/slices/toastSlice';
 import { setTheme } from './store/slices/themeSlice';
 import ToastViewport from './components/ToastViewport';
 import { getRoleAccessPath } from './utils/session';
+
+const HospitalPortalSelection = lazy(() => import('./pages/HospitalPortalSelection'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
 
 export default function App() {
   const dispatch = useDispatch();
@@ -76,11 +79,37 @@ export default function App() {
   return (
     <>
       <Routes>
-        <Route path="/login" element={<Navigate replace to="/doctor/access" />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/*" element={<AppRoutes />} />
-        <Route path="*" element={<Navigate to="/doctor/access" replace />} />
+        <Route path="/" element={(
+          <Suspense fallback={<div className="page" style={{ display: 'grid', placeItems: 'center', minHeight: '60vh' }}>Loading...</div>}>
+            <LandingPage />
+          </Suspense>
+        )} />
+        <Route path="/login" element={(
+          <Suspense fallback={<div className="page" style={{ display: 'grid', placeItems: 'center', minHeight: '60vh' }}>Loading...</div>}>
+            <HospitalPortalSelection />
+          </Suspense>
+        )} />
+        <Route path="/portal" element={(
+          <Suspense fallback={<div className="page" style={{ display: 'grid', placeItems: 'center', minHeight: '60vh' }}>Loading...</div>}>
+            <HospitalPortalSelection />
+          </Suspense>
+        )} />
+        <Route path="/forgot-password" element={(
+          <Suspense fallback={<div className="page" style={{ display: 'grid', placeItems: 'center', minHeight: '60vh' }}>Loading...</div>}>
+            <ForgotPassword />
+          </Suspense>
+        )} />
+        <Route path="/reset-password" element={(
+          <Suspense fallback={<div className="page" style={{ display: 'grid', placeItems: 'center', minHeight: '60vh' }}>Loading...</div>}>
+            <ResetPassword />
+          </Suspense>
+        )} />
+        <Route path="/*" element={(
+          <Suspense fallback={<div className="page" style={{ display: 'grid', placeItems: 'center', minHeight: '60vh' }}>Loading app...</div>}>
+            <AppRoutes />
+          </Suspense>
+        )} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <ToastViewport />
     </>

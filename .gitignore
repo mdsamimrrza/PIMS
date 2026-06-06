@@ -30,3 +30,8 @@ Backend/.venv/
 Backend/venv/
 Backend/*.sqlite3
 Backend/*.db
+
+# Scratch and temp files
+scratch/
+Backend/test-outbox/
+Frontend/vite.config.js.timestamp-*.mjs

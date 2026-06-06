@@ -1,16 +1,15 @@
-import { Router } from 'express'
-import { getByCode, getTree, search } from '../controllers/atc.controller.js'
-import { verifyToken } from '../middlewares/auth.middleware.js'
-import { requireRole } from '../middlewares/role.middleware.js'
-import { validateAtcCodeParam, validateAtcSearchQuery } from '../validators/atc.validator.js'
+const express = require('express');
+const router = express.Router();
+const atcController = require('../controllers/atc.controller');
+const { verifyToken } = require('../middlewares/auth.middleware');
+const { requireRole } = require('../middlewares/role.middleware');
+const atcValidator = require('../validators/atc.validator');
 
-const router = Router()
+router.use(verifyToken);
+router.use(requireRole('doctor', 'admin'));
 
-router.use(verifyToken)
-router.use(requireRole('DOCTOR', 'ADMIN'))
+router.get('/tree', atcController.getTree);
+router.get('/search', atcValidator.validateAtcSearchQuery, atcController.search);
+router.get('/:code', atcValidator.validateAtcCodeParam, atcController.getByCode);
 
-router.get('/tree', getTree)
-router.get('/search', validateAtcSearchQuery, search)
-router.get('/:code', validateAtcCodeParam, getByCode)
-
-export default router
+module.exports = router;

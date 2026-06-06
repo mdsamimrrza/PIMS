@@ -1,0 +1,255 @@
+/* --- PIMS 2.0 Clinical Dashboard Styles --- */
+
+.dashboard-page {
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* --- Hero Banner Section --- */
+.dashboard-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+}
+
+.hero-banner {
+  background: var(--grad-primary);
+  color: white;
+  padding: 3rem;
+  border-radius: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 20px 40px rgba(27, 201, 154, 0.2);
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-banner::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  filter: blur(60px);
+}
+
+.hero-banner h2 {
+  font-size: 2.2rem;
+  font-weight: 850;
+  margin: 0;
+  letter-spacing: -0.04em;
+}
+
+.hero-banner .helper-text {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1rem;
+  max-width: 400px;
+  margin-top: 1rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 3rem;
+}
+
+.hero-banner .button-primary {
+  background: white;
+  color: var(--accent-primary);
+  border: none;
+  font-weight: 800;
+  padding: 0.85rem 1.75rem;
+}
+
+.hero-banner .button-secondary {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.hero-tip {
+  margin-top: 2rem;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  color: white !important;
+}
+
+/* --- Patient Lookup Panel --- */
+.patient-lookup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.patient-lookup-count {
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: var(--accent-soft);
+  color: var(--accent-primary);
+  padding: 0.3rem 0.75rem;
+  border-radius: 100px;
+}
+
+.lookup-result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.lookup-result-action {
+  background: var(--surface-muted);
+  border: 1px solid transparent;
+  padding: 1.25rem;
+  border-radius: 16px;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+}
+
+.lookup-result-action:hover {
+  transform: translateX(6px);
+  border-color: var(--accent-primary);
+  background: var(--surface);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.lookup-result-action strong {
+  font-size: 1.1rem;
+  color: var(--text-main);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+/* --- Quick Drug Search --- */
+.search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.search-field svg {
+  position: absolute;
+  left: 1.25rem;
+  color: var(--text-subtle);
+}
+
+.search-field input {
+  padding-left: 3.5rem !important;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--surface-muted);
+  border: 1px solid transparent;
+  font-weight: 500;
+}
+
+.search-field input:focus {
+  background: var(--surface);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+/* --- Mini List for Drafts/Results --- */
+.mini-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.mini-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  background: var(--surface-muted);
+  border-radius: 18px;
+  border: 1px solid var(--line);
+}
+
+/* --- Table Styles --- */
+.table-panel {
+  background: var(--surface);
+  border-radius: 28px;
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--line);
+}
+
+.table-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 1rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--line);
+}
+
+.data-table td {
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-main);
+  font-weight: 550;
+}
+
+.data-table tr:hover td {
+  background: var(--surface-muted);
+}
+
+/* --- Stats Grid --- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+/* --- Dark Mode Specific Adjustments --- */
+html.dark .hero-banner {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .lookup-result-action:hover {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .mini-list-item {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* --- Responsive Layout --- */
+@media (max-width: 1200px) {
+  .dashboard-hero {
+    grid-template-columns: 1fr;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+

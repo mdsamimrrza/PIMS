@@ -1,20 +1,15 @@
-import { Router } from 'express'
-import {
-  acknowledgeExistingAlert,
-  dismissExistingAlert,
-  getAllAlerts,
-} from '../controllers/alert.controller.js'
-import { verifyToken } from '../middlewares/auth.middleware.js'
-import { requireRole } from '../middlewares/role.middleware.js'
-import { validateAlertIdParam, validateAlertQuery } from '../validators/alert.validator.js'
+const express = require('express');
+const router = express.Router();
+const alertController = require('../controllers/alert.controller');
+const { verifyToken } = require('../middlewares/auth.middleware');
+const { requireRole } = require('../middlewares/role.middleware');
+const alertValidator = require('../validators/alert.validator');
 
-const router = Router()
+router.use(verifyToken);
+router.use(requireRole('pharmacist', 'admin'));
 
-router.use(verifyToken)
-router.use(requireRole('PHARMACIST'))
+router.get('/', alertValidator.validateAlertQuery, alertController.getAllAlerts);
+router.put('/:id/acknowledge', alertValidator.validateAlertIdParam, alertController.acknowledgeExistingAlert);
+router.put('/:id/dismiss', alertValidator.validateAlertIdParam, alertController.dismissExistingAlert);
 
-router.get('/', validateAlertQuery, getAllAlerts)
-router.put('/:id/acknowledge', validateAlertIdParam, acknowledgeExistingAlert)
-router.put('/:id/dismiss', validateAlertIdParam, dismissExistingAlert)
-
-export default router
+module.exports = router;

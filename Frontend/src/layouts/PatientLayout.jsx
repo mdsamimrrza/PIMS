@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+/* Cache-buster: Redesign Phase 5 - Clarity Update */
 import Topbar from '../components/Topbar';
 import AppIcon from '../components/AppIcon';
 import { getStoredUser } from '../utils/session';
+import '../styles/PatientPortal.css';
 
 const sidebarPages = [
   { to: '/patient', label: 'Dashboard', icon: 'dashboard' },
@@ -61,6 +63,8 @@ const portalModules = [
   { label: 'Prescriptions', icon: 'prescription', state: 'Live' }
 ];
 
+const PATIENT_SIDEBAR_KEY = 'pims_patient_sidebar_open';
+
 export default function PatientLayout({ children }) {
   const location = useLocation();
   const authUser = useSelector((state) => state.auth.user);
@@ -69,6 +73,10 @@ export default function PatientLayout({ children }) {
   const firstName = patientDisplayName.split(/\s+/).filter(Boolean)[0] || storedUser?.firstName || 'Patient';
   const activePage = pageMeta[location.pathname] || pageMeta['/patient'];
   const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(() => {
+    const stored = localStorage.getItem(PATIENT_SIDEBAR_KEY);
+    return stored !== 'false';
+  });
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -93,6 +101,10 @@ export default function PatientLayout({ children }) {
     mediaQuery.addListener(handleViewportChange);
     return () => mediaQuery.removeListener(handleViewportChange);
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem(PATIENT_SIDEBAR_KEY, isDesktopSidebarOpen ? 'true' : 'false');
+  }, [isDesktopSidebarOpen]);
 
   useEffect(() => {
     if (isMobileViewport) {
@@ -128,12 +140,14 @@ export default function PatientLayout({ children }) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isMobileSidebarOpen]);
 
-  const isSidebarOpen = isMobileViewport ? isMobileSidebarOpen : true;
+  const isSidebarOpen = isMobileViewport ? isMobileSidebarOpen : isDesktopSidebarOpen;
 
   const toggleSidebar = () => {
     if (isMobileViewport) {
       setIsMobileSidebarOpen((current) => !current);
+      return;
     }
+    setIsDesktopSidebarOpen((current) => !current);
   };
 
   const closeMobileSidebar = () => {
@@ -144,103 +158,90 @@ export default function PatientLayout({ children }) {
 
   return (
     <div className={`patient-shell ${location.pathname === '/patient' ? 'patient-shell-dashboard' : 'patient-shell-subpage'} ${isMobileViewport ? 'patient-shell-mobile-layout' : ''}`.trim()}>
-      {isMobileViewport && isSidebarOpen ? (
-        <button
-          aria-label="Close patient navigation drawer"
-          className="sidebar-overlay"
-          onClick={closeMobileSidebar}
-          type="button"
-        />
-      ) : null}
+      {/* Cinematic Background Elements */}
+      <div className="pt-orb pt-orb-1" />
+      <div className="pt-orb pt-orb-2" />
+      <div className="pt-orb pt-orb-3" />
 
       <Topbar isSidebarOpen={isSidebarOpen} onMenuToggle={toggleSidebar} showMenuToggle />
+
       <main className="page-content patient-page-content">
-        <div className="patient-portal-shell">
-          <aside className={`patient-sidebar ${isSidebarOpen ? 'is-open' : 'is-closed'}`.trim()}>
-            <div className="patient-sidebar-card">
-              <div className="patient-sidebar-top">
-                <div className="patient-sidebar-brand">
-                  <span className="patient-sidebar-mark">
-                    <AppIcon name="shield" size={18} />
-                  </span>
-                  <div>
-                    <strong>{firstName}&apos;s Space</strong>
-                    <div className="helper-text">Patient navigation</div>
+        <div className={`patient-portal-shell ${!isSidebarOpen && !isMobileViewport ? 'sidebar-collapsed' : ''}`.trim()}>
+          
+          {isMobileViewport && isSidebarOpen ? (
+            <button
+              aria-label="Close patient navigation drawer"
+              className="sidebar-overlay"
+              onClick={closeMobileSidebar}
+              type="button"
+            />
+          ) : null}
+
+          <aside className={`patient-sidebar-wrap ${isSidebarOpen ? 'is-open' : 'is-closed'}`.trim()}>
+            <div className="patient-sidebar-glass">
+              <div className="patient-sidebar-card">
+                <div className="patient-sidebar-top">
+                  <div className="patient-sidebar-brand">
+                    <span className="patient-sidebar-mark">
+                      <AppIcon name="shield" size={18} />
+                    </span>
+                    <div>
+                      <strong>{firstName}&apos;s Space</strong>
+                      <div className="helper-text">Patient navigation</div>
+                    </div>
                   </div>
                 </div>
 
-                <button
-                  aria-label="Close patient navigation"
-                  className="sidebar-toggle patient-sidebar-toggle"
-                  onClick={closeMobileSidebar}
-                  type="button"
-                >
-                  <AppIcon name="close" size={18} />
-                </button>
-              </div>
-
-              <div className="patient-sidebar-section">
-                <span className="caption">Available now</span>
-                <nav aria-label="Patient pages" className="patient-sidebar-nav">
-                  {sidebarPages.map((item) => (
-                    <NavLink
-                      key={item.to}
-                      className={({ isActive }) => `patient-sidebar-link ${isActive ? 'active' : ''}`.trim()}
-                      end={item.to === '/patient'}
-                      onClick={closeMobileSidebar}
-                      to={item.to}
-                    >
-                      <AppIcon name={item.icon} size={17} />
-                      <span>{item.label}</span>
-                    </NavLink>
-                  ))}
-                </nav>
-              </div>
-
-              <div className="patient-sidebar-section">
-                <span className="caption">Portal modules</span>
-                <div className="patient-sidebar-roadmap">
-                  {portalModules.map((item) => (
-                    <div className="patient-roadmap-item" key={item.label}>
-                      <span>
-                        <AppIcon name={item.icon} size={16} />
-                        {item.label}
-                      </span>
-                      <em>{item.state}</em>
-                    </div>
-                  ))}
+                <div className="patient-sidebar-section">
+                  <span className="caption">Available now</span>
+                  <nav aria-label="Patient pages" className="patient-sidebar-nav">
+                    {sidebarPages.map((item) => (
+                      <NavLink
+                        key={item.to}
+                        className={({ isActive }) => `patient-sidebar-link ${isActive ? 'active' : ''}`.trim()}
+                        end={item.to === '/patient'}
+                        onClick={closeMobileSidebar}
+                        to={item.to}
+                      >
+                        <AppIcon name={item.icon} size={17} />
+                        <span>{item.label}</span>
+                      </NavLink>
+                    ))}
+                  </nav>
                 </div>
               </div>
             </div>
           </aside>
 
           <div className="patient-portal-main">
-            <section className="patient-layout-banner">
-              <div className="patient-layout-copy">
-                <span className="patient-layout-kicker">{activePage.kicker}</span>
-                <div className="section-title">
-                  <AppIcon name="shield" size={20} />
-                  <strong>{firstName}&apos;s Patient Portal</strong>
+            {location.pathname !== '/patient' && (
+              <section className="patient-layout-banner">
+                <div className="patient-layout-copy">
+                  <span className="patient-layout-kicker">{activePage.kicker}</span>
+                  <div className="section-title">
+                    <AppIcon name="shield" size={20} />
+                    <strong>{firstName}&apos;s Patient Portal</strong>
+                  </div>
+                  <p className="helper-text">{activePage.description}</p>
                 </div>
-                <p className="helper-text">{activePage.description}</p>
-              </div>
 
-              <div className="patient-layout-highlights">
-                {activePage.chips.map((item) => (
-                  <span className="patient-layout-chip" key={item.label}>
-                    <AppIcon name={item.icon} size={16} />
-                    {item.label}
-                  </span>
-                ))}
-              </div>
+                <div className="patient-layout-highlights">
+                  {activePage.chips.map((item) => (
+                    <span className="patient-layout-chip" key={item.label}>
+                      <AppIcon name="checkCircle" size={16} />
+                      {item.label}
+                    </span>
+                  ))}
+                </div>
 
-              <div className="toolbar-group patient-layout-actions">
-                <Link className="button-secondary" onClick={closeMobileSidebar} to={activePage.primaryAction.to}>
-                  <AppIcon name={activePage.primaryAction.icon} size={16} />
-                  {activePage.primaryAction.label}
-                </Link>
-              </div>
-            </section>
+                <div className="toolbar-group patient-layout-actions">
+                  <Link className="button-secondary" to="/patient/prescriptions">
+                    <AppIcon name="prescription" size={16} />
+                    Open Prescriptions
+                  </Link>
+                </div>
+              </section>
+            )}
 
             {children}
           </div>

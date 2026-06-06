@@ -1,121 +1,151 @@
-import mongoose from 'mongoose'
+const mongoose = require('mongoose');
 
-const prescriptionItemSchema = new mongoose.Schema(
-  {
-    medicineId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Medicine',
-      default: null,
-    },
-    atcCode: {
-      type: String,
-      required: true,
-      trim: true,
-      uppercase: true,
-    },
-    dose: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    quantity: {
-      type: Number,
-      min: 1,
-      default: 1,
-    },
-    frequency: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    route: {
-      type: String,
-      default: 'Oral',
-      trim: true,
-    },
-    durationDays: {
-      type: Number,
-      min: 1,
-      default: 1,
-    },
-    instructions: {
-      type: String,
-      default: '',
-      trim: true,
-    },
+const prescriptionItemSchema = new mongoose.Schema({
+  medicineId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Medicine',
+    default: null
   },
-  { _id: false }
-)
-
-const prescriptionSchema = new mongoose.Schema(
-  {
-    rxId: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
-    patientId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Patient',
-      required: true,
-    },
-    doctorId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    diagnosis: {
-      type: String,
-      default: '',
-      trim: true,
-    },
-    items: {
-      type: [prescriptionItemSchema],
-      default: [],
-    },
-    status: {
-      type: String,
-      enum: ['Draft', 'Pending', 'Processing', 'Filled', 'Cancelled'],
-      default: 'Pending',
-    },
-    isUrgent: {
-      type: Boolean,
-      default: false,
-    },
-    allowRefills: {
-      type: Number,
-      min: 0,
-      max: 3,
-      default: 0,
-    },
-    digitalSignature: {
-      type: String,
-      default: '',
-      trim: true,
-    },
-    pdfUrl: {
-      type: String,
-      default: '',
-      trim: true,
-    },
+  atcCode: {
+    type: String,
+    required: true,
+    trim: true,
+    uppercase: true
   },
-  {
-    timestamps: true,
+  dose: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  quantity: {
+    type: Number,
+    min: 1,
+    default: 1
+  },
+  frequency: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  route: {
+    type: String,
+    default: 'Oral',
+    trim: true
+  },
+  durationDays: {
+    type: Number,
+    min: 1,
+    default: 1
+  },
+  instructions: {
+    type: String,
+    default: '',
+    trim: true
   }
-)
+}, { _id: false });
 
-prescriptionSchema.index({ doctorId: 1, createdAt: -1 })
-prescriptionSchema.index({ patientId: 1, createdAt: -1 })
-prescriptionSchema.index({ status: 1, createdAt: -1 })
+const prescriptionSchema = new mongoose.Schema({
+  rxId: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
+  },
+  patientId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Patient',
+    required: true
+  },
+  doctorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  diagnosis: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  items: {
+    type: [prescriptionItemSchema],
+    default: []
+  },
+  status: {
+    type: String,
+    enum: ['Draft', 'Pending', 'Processing', 'Filled', 'Cancelled', 'Emergency_Draft'],
+    default: 'Pending'
+  },
+  pharmacyStatus: {
+    type: String,
+    enum: ['Unfulfilled', 'Sent to Pharmacy', 'Dispensed'],
+    default: 'Unfulfilled'
+  },
+  isUrgent: {
+    type: Boolean,
+    default: false
+  },
+  prescriptionType: {
+    type: String,
+    enum: ['opd', 'ipd', 'emergency', 'tto'],
+    default: 'opd'
+  },
+  priority: {
+    type: String,
+    enum: ['routine', 'urgent', 'stat', 'emergency'],
+    default: 'routine'
+  },
+  allergyChecked: {
+    type: Boolean,
+    default: false
+  },
+  allergyWarnings: {
+    type: [String],
+    default: []
+  },
+  interactionAlerts: {
+    type: [String],
+    default: []
+  },
+  episode: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admission',
+    default: null
+  },
+  allergyOverrideReason: {
+    type: String,
+    default: null
+  },
+  allowRefills: {
+    type: Number,
+    min: 0,
+    max: 3,
+    default: 0
+  },
+  digitalSignature: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  pdfUrl: {
+    type: String,
+    default: '',
+    trim: true
+  }
+}, {
+  timestamps: true
+});
+
+prescriptionSchema.index({ doctorId: 1, createdAt: -1 });
+prescriptionSchema.index({ patientId: 1, createdAt: -1 });
+prescriptionSchema.index({ status: 1, createdAt: -1 });
 
 prescriptionSchema.set('toJSON', {
   transform: (_doc, ret) => {
-    delete ret.__v
-    return ret
-  },
-})
+    delete ret.__v;
+    return ret;
+  }
+});
 
-const Prescription = mongoose.models.Prescription || mongoose.model('Prescription', prescriptionSchema)
+const Prescription = mongoose.models.Prescription || mongoose.model('Prescription', prescriptionSchema);
 
-export default Prescription
+module.exports = Prescription;

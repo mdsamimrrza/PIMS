@@ -1,0 +1,118 @@
+/* ⚙️ PIMS Admin Portal — Dedicated Stylesheet
+   Covers user management, system health dashboards, 
+   audit trails, and platform configuration views.
+*/
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 1.35rem;
+  align-items: start;
+}
+
+.admin-toolbar {
+  align-items: stretch;
+}
+
+.admin-summary-grid {
+  flex: 1;
+}
+
+/* --- User Management Modals --- */
+.user-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  z-index: 260;
+  padding: calc(env(safe-area-inset-top, 0px) + 2rem) 1.25rem 1.5rem;
+}
+
+.user-modal {
+  width: min(560px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 28px 90px rgba(15, 23, 42, 0.22);
+  padding: 1.45rem;
+  display: grid;
+  gap: 1rem;
+  position: relative;
+}
+
+.manage-user-modal {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border-color: #cfd9e8;
+}
+
+.manage-user-profile {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.manage-user-profile strong {
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.manage-user-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.manage-user-meta-item {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.manage-user-actions {
+  align-items: stretch;
+}
+
+.manage-user-actions button {
+  flex: 1;
+}
+
+.manage-user-warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+  padding: 0.85rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid rgba(195, 122, 29, 0.15);
+}
+
+/* --- Dark Mode --- */
+html.dark .manage-user-modal {
+  background: var(--surface);
+  border-color: var(--line);
+}
+
+html.dark .user-modal {
+  background: var(--surface);
+  border-color: var(--line);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .user-modal-backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+html.dark .manage-user-profile,
+html.dark .manage-user-meta-item {
+  background: var(--surface-muted);
+  border-color: var(--line);
+}

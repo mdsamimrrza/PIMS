@@ -1,5 +1,5 @@
-export const buildInviteEmail = ({ firstName, lastName, email, role, password, loginUrl }) => {
-  const displayName = [firstName, lastName].filter(Boolean).join(' ').trim() || email
+const buildInviteEmail = ({ firstName, lastName, email, role, activationUrl, expiresIn = '1 hour' }) => {
+  const displayName = [firstName, lastName].filter(Boolean).join(' ').trim() || email;
   const html = `
     <h1>PIMS Account Created</h1>
     <p>Hello ${displayName},</p>
@@ -7,85 +7,87 @@ export const buildInviteEmail = ({ firstName, lastName, email, role, password, l
     <ul>
       <li><strong>Email:</strong> ${email}</li>
       <li><strong>Role:</strong> ${role}</li>
-      <li><strong>Password:</strong> ${password}</li>
     </ul>
-    <p>Sign in from the PIMS frontend and change your password when needed.</p>
-    ${loginUrl ? `<p><a href="${loginUrl}">${loginUrl}</a></p>` : ''}
-  `.trim()
+    <p>Set your password using the secure activation link below. This link expires in ${expiresIn}.</p>
+    ${activationUrl ? `<p><a href="${activationUrl}">${activationUrl}</a></p>` : ''}
+  `.trim();
 
   const text = [
     'PIMS Account Created',
     `Hello ${displayName},`,
     `Email: ${email}`,
     `Role: ${role}`,
-    `Password: ${password}`,
-    loginUrl ? `Login link: ${loginUrl}` : null,
-    'Sign in from the PIMS frontend and change your password when needed.',
-  ].filter(Boolean).join('\n')
+    activationUrl ? `Activation link: ${activationUrl}` : null,
+    `Set your password using the secure activation link above. It expires in ${expiresIn}.`,
+  ].filter(Boolean).join('\n');
 
   return {
     subject: 'Your PIMS account is ready',
     html,
     text,
-  }
-}
+  };
+};
 
-export const buildPasswordResetEmail = ({ firstName, lastName, email, resetToken, resetUrl }) => {
-  const displayName = [firstName, lastName].filter(Boolean).join(' ').trim() || email
+const buildPasswordResetEmail = ({ firstName, lastName, email, resetToken, resetUrl, mode = 'reset' }) => {
+  const displayName = [firstName, lastName].filter(Boolean).join(' ').trim() || email;
+  const heading = mode === 'activation' ? 'Activate Your PIMS Account' : 'Reset Your PIMS Password';
+  const intro = mode === 'activation'
+    ? 'Use the link below or enter the one-time code in the UI to set your password:'
+    : 'Use the link below or enter the one-time code in the UI:';
   const html = `
-    <h1>Reset Your PIMS Password</h1>
+    <h1>${heading}</h1>
     <p>Hello ${displayName},</p>
-    <p>Use the link below or enter the one-time code in the UI:</p>
+    <p>${intro}</p>
     <p><a href="${resetUrl}">${resetUrl}</a></p>
     <p><strong>Reset code:</strong> ${resetToken}</p>
     <p>This code expires soon. If you did not request a password reset, ignore this email.</p>
-  `.trim()
+  `.trim();
 
   const text = [
-    'Reset Your PIMS Password',
+    heading,
     `Hello ${displayName},`,
     `Reset link: ${resetUrl}`,
     `Reset code: ${resetToken}`,
     'This code expires soon. If you did not request a password reset, ignore this email.',
-  ].join('\n')
+  ].join('\n');
 
   return {
-    subject: 'Reset your PIMS password',
+    subject: mode === 'activation' ? 'Activate your PIMS account' : 'Reset your PIMS password',
     html,
     text,
-  }
-}
+  };
+};
 
-export const buildPasswordChangedEmail = ({ firstName, lastName, email }) => {
-  const displayName = [firstName, lastName].filter(Boolean).join(' ').trim() || email
+const buildPasswordChangedEmail = ({ firstName, lastName, email }) => {
+  const displayName = [firstName, lastName].filter(Boolean).join(' ').trim() || email;
   const html = `
     <h1>PIMS Password Changed</h1>
     <p>Hello ${displayName},</p>
     <p>Your PIMS password was changed successfully.</p>
     <p>If you did not make this change, contact an administrator immediately.</p>
-  `.trim()
+  `.trim();
 
   const text = [
     'PIMS Password Changed',
     `Hello ${displayName},`,
     'Your PIMS password was changed successfully.',
     'If you did not make this change, contact an administrator immediately.',
-  ].join('\n')
+  ].join('\n');
 
   return {
     subject: 'Your PIMS password was changed',
     html,
     text,
-  }
-}
+  };
+};
 
-export const buildPrescriptionNotificationEmail = ({
+const buildPrescriptionNotificationEmail = ({
   rxId,
   patientName,
   doctorName,
   isUrgent,
 }) => {
-  const priority = isUrgent ? 'Urgent' : 'Standard'
+  const priority = isUrgent ? 'Urgent' : 'Standard';
 
   const html = `
     <h1>New Prescription Submitted</h1>
@@ -97,7 +99,7 @@ export const buildPrescriptionNotificationEmail = ({
       <li><strong>Priority:</strong> ${priority}</li>
     </ul>
     <p>Please review it in the pharmacist workflow.</p>
-  `.trim()
+  `.trim();
 
   const text = [
     'New Prescription Submitted',
@@ -106,11 +108,18 @@ export const buildPrescriptionNotificationEmail = ({
     `Doctor: ${doctorName}`,
     `Priority: ${priority}`,
     'Please review it in the pharmacist workflow.',
-  ].join('\n')
+  ].join('\n');
 
   return {
     subject: `Prescription ${rxId} submitted`,
     html,
     text,
-  }
-}
+  };
+};
+
+module.exports = {
+  buildInviteEmail,
+  buildPasswordResetEmail,
+  buildPasswordChangedEmail,
+  buildPrescriptionNotificationEmail
+};

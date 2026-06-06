@@ -2,7 +2,6 @@ import { ROLES } from '../constants/roles';
 
 const VALID_ROLES = Object.values(ROLES);
 
-const TOKEN_KEY = 'pims_token';
 const ROLE_KEY = 'pims_role';
 const USER_KEY = 'pims_user';
 const REMEMBER_KEY = 'pims_remember';
@@ -20,10 +19,6 @@ function parseStoredJson(key) {
   } catch (_error) {
     return null;
   }
-}
-
-export function getStoredToken() {
-  return localStorage.getItem(TOKEN_KEY);
 }
 
 export function getStoredLoginTime() {
@@ -66,6 +61,14 @@ export function getRoleHomePath(role) {
       return '/pharmacist';
     case ROLES.ADMIN:
       return '/admin';
+    case ROLES.RECEPTIONIST:
+      return '/receptionist';
+    case ROLES.CASHIER:
+      return '/billing';
+    case ROLES.NURSE:
+      return '/nurse';
+    case ROLES.LAB_TECH:
+      return '/lab';
     case ROLES.DOCTOR:
     default:
       return '/dashboard';
@@ -73,28 +76,18 @@ export function getRoleHomePath(role) {
 }
 
 export function getRoleAccessPath(role) {
-  if (!isValidRole(role)) {
-    return '/doctor/access';
+  if (role === ROLES.PATIENT) {
+    return '/';
   }
 
-  switch (role) {
-    case ROLES.PATIENT:
-      return '/patient/access';
-    case ROLES.PHARMACIST:
-      return '/pharmacist/access';
-    case ROLES.ADMIN:
-      return '/admin/access';
-    case ROLES.DOCTOR:
-    default:
-      return '/doctor/access';
+  if (isValidRole(role)) {
+    return '/portals';
   }
+
+  return '/';
 }
 
-export function setAuthSession({ token, user, rememberDevice = false }) {
-  if (token) {
-    localStorage.setItem(TOKEN_KEY, token);
-  }
-
+export function setAuthSession({ user, rememberDevice = false, loggedInAt = new Date().toISOString() }) {
   if (user) {
     localStorage.setItem(USER_KEY, JSON.stringify(user));
     if (isValidRole(user.role)) {
@@ -104,7 +97,7 @@ export function setAuthSession({ token, user, rememberDevice = false }) {
     }
   }
 
-  localStorage.setItem(LOGIN_TIME_KEY, new Date().toISOString());
+  localStorage.setItem(LOGIN_TIME_KEY, loggedInAt);
 
   if (rememberDevice) {
     localStorage.setItem(REMEMBER_KEY, 'true');
@@ -127,7 +120,6 @@ export function updateStoredUser(user) {
 }
 
 export function clearSession() {
-  localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(ROLE_KEY);
   localStorage.removeItem(USER_KEY);
   localStorage.removeItem(REMEMBER_KEY);

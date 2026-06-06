@@ -80,7 +80,6 @@ export const validateCreatePatientPortalAccount = createValidator((req) => {
   const body = req.body || {}
 
   requireEmail(errors, 'email', body.email)
-  requireNonEmptyString(errors, 'password', body.password)
   optionalString(errors, 'firstName', body.firstName)
   optionalString(errors, 'lastName', body.lastName)
 

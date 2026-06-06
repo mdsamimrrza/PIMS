@@ -1,11 +1,15 @@
-import { sendError } from '../utils/responseHandler.js'
+const { sendError } = require('../utils/responseHandler');
 
-export const requireRole = (...roles) => {
+const requireRole = (...roles) => {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {
-      return sendError(res, 'Forbidden', 403)
+      return sendError(res, 'Forbidden', 403);
     }
 
-    return next()
-  }
-}
+    return next();
+  };
+};
+
+module.exports = {
+  requireRole
+};

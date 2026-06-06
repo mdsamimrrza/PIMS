@@ -11,7 +11,13 @@ export const NAV_ITEMS = [
   { to: '/alerts', label: 'Alerts', icon: 'alert', roles: [ROLES.PHARMACIST] },
   { to: '/reports', label: 'Reports', icon: 'reports', roles: [ROLES.ADMIN] },
   { to: '/inventory/audit', label: 'Inventory Audit', icon: 'inventory', roles: [ROLES.ADMIN] },
-  { to: '/admin/users', label: 'User Management', icon: 'users', roles: [ROLES.ADMIN] }
+  { to: '/admin/audit', label: 'System Audit', icon: 'history', roles: [ROLES.ADMIN] },
+  { to: '/admin/users', label: 'User Management', icon: 'users', roles: [ROLES.ADMIN] },
+  { to: '/receptionist', label: 'Admissions', icon: 'user-plus', roles: [ROLES.RECEPTIONIST, ROLES.ADMIN] },
+  { to: '/wards', label: 'Wards', icon: 'grid', roles: [ROLES.NURSE, ROLES.RECEPTIONIST, ROLES.ADMIN] },
+  { to: '/billing', label: 'Billing Desk', icon: 'inventory', roles: [ROLES.CASHIER] },
+  { to: '/emergency/queue', label: 'Emergency', icon: 'alert', roles: [ROLES.DOCTOR, ROLES.NURSE, ROLES.PHARMACIST, ROLES.ADMIN] },
+  { to: '/emergency/checkin', label: 'A&E Check-in', icon: 'plusCircle', roles: [ROLES.DOCTOR, ROLES.NURSE, ROLES.RECEPTIONIST] }
 ];
 
 export const PAGE_TITLES = {
@@ -25,12 +31,18 @@ export const PAGE_TITLES = {
   '/alerts': 'System Alerts',
   '/reports': 'Reports & Analytics',
   '/inventory/audit': 'Inventory Audit',
+  '/admin/audit': 'System Audit Logs',
   '/admin/users': 'User Management',
+  '/wards': 'Ward & Bed Management',
+  '/receptionist': 'Reception Desk',
+  '/billing': 'Billing & Cashier',
   '/patient': 'Patient Portal',
   '/patient/profile': 'Health Record',
   '/patient/prescriptions': 'Prescription Center',
   '/patient/change-password': 'Change Password',
-  '/change-password': 'Change Password'
+  '/change-password': 'Change Password',
+  '/emergency/queue': 'Emergency Queue',
+  '/emergency/checkin': 'A&E Check-in'
 };
 
 export function getNavigationForRole(role) {

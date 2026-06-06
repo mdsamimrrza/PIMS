@@ -2,17 +2,20 @@
   "name": "pims-backend",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "main": "src/server.js",
   "dependencies": {
+    "connect-mongo": "^5.1.0",
     "cors": "^2.8.5",
+    "csurf": "^1.11.0",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
-    "express-rate-limit": "^8.3.2",
+    "express-rate-limit": "^8.5.1",
+    "express-session": "^1.18.1",
+    "express-validator": "^7.3.2",
     "helmet": "^7.2.0",
-    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.4",
     "morgan": "^1.10.1",
+    "node-cron": "^4.2.1",
     "nodemailer": "^8.0.5",
     "pdfkit": "^0.18.0"
   },
@@ -31,6 +34,8 @@
     "seed:atc": "node src/jobs/seedATC.js",
     "seed:medicines": "node src/jobs/seedMedicines.js",
     "seed:users": "node src/jobs/seedUsers.js",
+    "seed:beds": "node src/jobs/seedBeds.js",
+    "cleanup:inventory": "node src/scripts/cleanupInvalidInventory.js",
     "verify:modules": "node scripts/verify-modules.mjs"
   }
 }

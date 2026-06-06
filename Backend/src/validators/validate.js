@@ -1,185 +1,211 @@
-import mongoose from 'mongoose'
-import { sendError } from '../utils/responseHandler.js'
+const mongoose = require('mongoose');
+const { sendError } = require('../utils/responseHandler');
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export const createValidator = (buildErrors) => {
+const createValidator = (buildErrors) => {
   return (req, res, next) => {
-    const errors = buildErrors(req)
+    const errors = buildErrors(req);
 
     if (errors.length > 0) {
-      return sendError(res, 'Validation failed', 400, errors)
+      return sendError(res, 'Validation failed', 400, errors);
     }
 
-    return next()
-  }
-}
+    return next();
+  };
+};
 
-export const addError = (errors, field, message) => {
-  errors.push({ field, message })
-}
+const addError = (errors, field, message) => {
+  errors.push({ field, message });
+};
 
-export const isProvided = (value) => value !== undefined && value !== null
+const isProvided = (value) => value !== undefined && value !== null;
 
-export const requireNonEmptyString = (errors, field, value) => {
+const requireNonEmptyString = (errors, field, value) => {
   if (!isProvided(value) || !String(value).trim()) {
-    addError(errors, field, `${field} is required`)
+    addError(errors, field, `${field} is required`);
   }
-}
+};
 
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-export const requireStrongPassword = (errors, field, value) => {
-  requireNonEmptyString(errors, field, value)
+const requireStrongPassword = (errors, field, value) => {
+  requireNonEmptyString(errors, field, value);
 
   if (isProvided(value) && String(value).trim() && !PASSWORD_REGEX.test(String(value).trim())) {
-    addError(errors, field, `${field} must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character`)
+    addError(errors, field, `${field} must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character`);
   }
-}
+};
 
-export const optionalStrongPassword = (errors, field, value) => {
+const optionalStrongPassword = (errors, field, value) => {
   if (!isProvided(value)) {
-    return
+    return;
   }
 
   if (typeof value !== 'string') {
-    addError(errors, field, `${field} must be a string`)
-    return
+    addError(errors, field, `${field} must be a string`);
+    return;
   }
 
   if (String(value).trim() && !PASSWORD_REGEX.test(String(value).trim())) {
-    addError(errors, field, `${field} must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character`)
+    addError(errors, field, `${field} must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character`);
   }
-}
+};
 
-export const optionalString = (errors, field, value) => {
+const optionalString = (errors, field, value) => {
   if (isProvided(value) && typeof value !== 'string') {
-    addError(errors, field, `${field} must be a string`)
+    addError(errors, field, `${field} must be a string`);
   }
-}
+};
 
-export const requireEmail = (errors, field, value) => {
-  requireNonEmptyString(errors, field, value)
+const requireEmail = (errors, field, value) => {
+  requireNonEmptyString(errors, field, value);
 
   if (isProvided(value) && String(value).trim() && !EMAIL_REGEX.test(String(value).trim())) {
-    addError(errors, field, `${field} must be a valid email`)
+    addError(errors, field, `${field} must be a valid email`);
   }
-}
+};
 
-export const optionalEmail = (errors, field, value) => {
+const optionalEmail = (errors, field, value) => {
   if (isProvided(value) && (!String(value).trim() || !EMAIL_REGEX.test(String(value).trim()))) {
-    addError(errors, field, `${field} must be a valid email`)
+    addError(errors, field, `${field} must be a valid email`);
   }
-}
+};
 
-export const requireObjectId = (errors, field, value) => {
+const requireObjectId = (errors, field, value) => {
   if (!isProvided(value) || !mongoose.isValidObjectId(value)) {
-    addError(errors, field, `${field} must be a valid object id`)
+    addError(errors, field, `${field} must be a valid object id`);
   }
-}
+};
 
-export const optionalObjectId = (errors, field, value) => {
+const optionalObjectId = (errors, field, value) => {
   if (isProvided(value) && !mongoose.isValidObjectId(value)) {
-    addError(errors, field, `${field} must be a valid object id`)
+    addError(errors, field, `${field} must be a valid object id`);
   }
-}
+};
 
-export const requireEnum = (errors, field, value, allowedValues) => {
+const requireEnum = (errors, field, value, allowedValues) => {
   if (!isProvided(value) || !allowedValues.includes(value)) {
-    addError(errors, field, `${field} must be one of: ${allowedValues.join(', ')}`)
+    addError(errors, field, `${field} must be one of: ${allowedValues.join(', ')}`);
   }
-}
+};
 
-export const optionalEnum = (errors, field, value, allowedValues) => {
+const optionalEnum = (errors, field, value, allowedValues) => {
   if (isProvided(value) && !allowedValues.includes(value)) {
-    addError(errors, field, `${field} must be one of: ${allowedValues.join(', ')}`)
+    addError(errors, field, `${field} must be one of: ${allowedValues.join(', ')}`);
   }
-}
+};
 
-export const requireNonNegativeNumber = (errors, field, value) => {
-  const normalized = Number(value)
+const requireNonNegativeNumber = (errors, field, value) => {
+  const normalized = Number(value);
 
   if (!isProvided(value) || !Number.isFinite(normalized) || normalized < 0) {
-    addError(errors, field, `${field} must be a non-negative number`)
+    addError(errors, field, `${field} must be a non-negative number`);
   }
-}
+};
 
-export const optionalNonNegativeNumber = (errors, field, value) => {
+const optionalNonNegativeNumber = (errors, field, value) => {
   if (!isProvided(value)) {
-    return
+    return;
   }
 
-  const normalized = Number(value)
+  const normalized = Number(value);
 
   if (!Number.isFinite(normalized) || normalized < 0) {
-    addError(errors, field, `${field} must be a non-negative number`)
+    addError(errors, field, `${field} must be a non-negative number`);
   }
-}
+};
 
-export const optionalNumberRange = (errors, field, value, min, max) => {
+const optionalNumberRange = (errors, field, value, min, max) => {
   if (!isProvided(value)) {
-    return
+    return;
   }
 
-  const normalized = Number(value)
+  const normalized = Number(value);
 
   if (!Number.isFinite(normalized) || normalized < min || normalized > max) {
-    addError(errors, field, `${field} must be between ${min} and ${max}`)
+    addError(errors, field, `${field} must be between ${min} and ${max}`);
   }
-}
+};
 
-export const requireDate = (errors, field, value) => {
-  const date = new Date(value)
+const requireDate = (errors, field, value) => {
+  const date = new Date(value);
 
   if (!isProvided(value) || Number.isNaN(date.getTime())) {
-    addError(errors, field, `${field} must be a valid date`)
+    addError(errors, field, `${field} must be a valid date`);
   }
-}
+};
 
-export const optionalDate = (errors, field, value) => {
+const optionalDate = (errors, field, value) => {
   if (!isProvided(value)) {
-    return
+    return;
   }
 
-  const date = new Date(value)
+  const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    addError(errors, field, `${field} must be a valid date`)
+    addError(errors, field, `${field} must be a valid date`);
   }
-}
+};
 
-export const optionalBoolean = (errors, field, value) => {
+const optionalBoolean = (errors, field, value) => {
   if (isProvided(value) && typeof value !== 'boolean') {
-    addError(errors, field, `${field} must be a boolean`)
+    addError(errors, field, `${field} must be a boolean`);
   }
-}
+};
 
-export const optionalBooleanQuery = (errors, field, value) => {
+const optionalBooleanQuery = (errors, field, value) => {
   if (isProvided(value) && value !== 'true' && value !== 'false') {
-    addError(errors, field, `${field} must be either "true" or "false"`)
+    addError(errors, field, `${field} must be either "true" or "false"`);
   }
-}
+};
 
-export const requireArray = (errors, field, value) => {
+const requireArray = (errors, field, value) => {
   if (!Array.isArray(value) || value.length === 0) {
-    addError(errors, field, `${field} must be a non-empty array`)
+    addError(errors, field, `${field} must be a non-empty array`);
   }
-}
+};
 
-export const optionalStringArray = (errors, field, value) => {
+const optionalStringArray = (errors, field, value) => {
   if (!isProvided(value)) {
-    return
+    return;
   }
 
   if (!Array.isArray(value) || value.some((item) => typeof item !== 'string')) {
-    addError(errors, field, `${field} must be an array of strings`)
+    addError(errors, field, `${field} must be an array of strings`);
   }
-}
+};
 
-export const requireAtLeastOneOf = (errors, source, fields) => {
-  const hasAnyValue = fields.some((field) => isProvided(source?.[field]))
+const requireAtLeastOneOf = (errors, source, fields) => {
+  const hasAnyValue = fields.some((field) => isProvided(source?.[field]));
 
   if (!hasAnyValue) {
-    addError(errors, 'body', `At least one of these fields is required: ${fields.join(', ')}`)
+    addError(errors, 'body', `At least one of these fields is required: ${fields.join(', ')}`);
   }
-}
+};
+
+module.exports = {
+  createValidator,
+  addError,
+  isProvided,
+  requireNonEmptyString,
+  requireStrongPassword,
+  optionalStrongPassword,
+  optionalString,
+  requireEmail,
+  optionalEmail,
+  requireObjectId,
+  optionalObjectId,
+  requireEnum,
+  optionalEnum,
+  requireNonNegativeNumber,
+  optionalNonNegativeNumber,
+  optionalNumberRange,
+  requireDate,
+  optionalDate,
+  optionalBoolean,
+  optionalBooleanQuery,
+  requireArray,
+  optionalStringArray,
+  requireAtLeastOneOf
+};

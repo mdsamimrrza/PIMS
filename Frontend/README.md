@@ -85,7 +85,12 @@ Frontend/
 │   │       └── toastSlice.js      # Toast notification queue
 │   │
 │   ├── styles/
-│   │   └── global.css             # Entire design system (CSS variables, components, utilities)
+│   │   ├── global.css             # Design tokens, shared primitives, typography
+│   │   ├── Dashboard.css          # Shared clinical dashboard components
+│   │   ├── ProfessionalPortal.css # Doctor specific UI, shell, monographs
+│   │   ├── PatientPortal.css      # Patient portal specific layouts & hero sections
+│   │   ├── PharmacistPortal.css   # Inventory management & fulfillment tools
+│   │   └── AdminPortal.css        # User management modals & health grids
 │   │
 │   └── utils/
 │       └── session.js             # localStorage helpers (token, role, display name)
@@ -127,19 +132,26 @@ VITE_API_BASE_URL=https://pharmacy-information-management-system.onrender.com/ap
 
 ## Design System
 
-All styling lives in `src/styles/global.css`. The system is built on **CSS custom properties (variables)** for full theme consistency.
+The PIMS 2.0 design system uses a **modular CSS architecture**. Styles are divided into role-specific bundles to prevent monolithic bloat and improve maintainability.
 
-### Color Tokens
+### Core Stylesheets
+- **`global.css`**: The source of truth for design tokens (colors, spacing), shared typography, and primitive UI components (buttons, inputs, status pills).
+- **`Dashboard.css`**: Shared layouts and hero banners used across staff dashboards.
+- **`ProfessionalPortal.css`**: Specialized styles for clinical staff (Doctors), including sidebar interactions and ATC monograph views.
+- **`PatientPortal.css`**: High-fidelity personal layouts, roadmap visualizations, and hero banners for the patient experience.
+- **`PharmacistPortal.css`**: Inventory-heavy tools, prescription fulfillment lists, and dispensing workflows.
+- **`AdminPortal.css`**: User management modals, platform health grids, and administrative audit views.
+
+### Color Tokens (CSS Variables)
 ```css
 --bg              /* Page background */
 --surface         /* Card / panel background */
 --surface-muted   /* Muted secondary surface */
---text            /* Primary text */
+--text-main       /* Primary text */
 --text-muted      /* Secondary / helper text */
---accent          /* Brand teal (#0f9b8e) */
---accent-strong   /* Darker accent */
+--accent-primary  /* Brand teal (#1bc99a) */
 --line            /* Borders */
---danger          /* Error / critical red */
+--accent-critical /* Error / critical red */
 ```
 
 ### Component Classes
@@ -206,7 +218,7 @@ If the user's role is not in `allowedRoles`, they are redirected to their role's
 | `/doctor/login` | `DoctorLoginPage` | Public |
 | `/pharmacist/access` | `PharmacistLandingPage` | Public |
 | `/pharmacist/login` | `PharmacistLoginPage` | Public |
-| `/admin/access` | `AdminAccess` | Public |
+| `/admin/login` | `Login` | Public |
 | `/admin/login` | `AdminLoginPage` | Public |
 | `/patient/access` | `PatientLandingPage` | Public |
 | `/patient/login` | `PatientLoginPage` | Public |
@@ -399,7 +411,7 @@ Used in place of `window.confirm()` and `window.alert()` for:
 - **Destructive actions** — delete user, delete inventory batch (red "Delete" button)
 - **Status changes** — pharmacist marks prescription as Filled/Processing/Cancelled
 - **Critical errors** — insufficient stock when filling a prescription (stays on screen until dismissed)
-- **Credential display** — patient portal login URL + temporary password shown in a structured modal after creation
+- **Credential display** — patient portal access now shows login URL plus password-setup status instead of plaintext passwords
 
 > No native browser `alert()`, `confirm()`, or `prompt()` dialogs are used anywhere in the application.
 
@@ -412,13 +424,13 @@ Each role has a dedicated landing page and login page:
 ```
 /doctor/access     → Doctor landing → /doctor/login     → /dashboard
 /pharmacist/access → Pharmacist landing → /pharmacist/login → /pharmacist
-/admin/access      → Admin landing → /admin/login       → /admin
+/admin/login       → Admin sign-in                      → /admin
 /patient/access    → Patient landing → /patient/login   → /patient
 ```
 
 On login:
 1. `authSlice` calls `POST /api/auth/login`
-2. JWT + user object stored in Redux state AND `localStorage`
+2. Session-backed auth state hydrated into Redux plus user metadata cached in `localStorage`
 3. `AppHomeRedirect` reads stored role and navigates to the role's home path
 
 On logout:

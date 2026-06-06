@@ -103,26 +103,16 @@ export default function Topbar({ showMenuToggle = false, onMenuToggle, isSidebar
 
   return (
     <header className={`topbar ${isPatientPortal ? 'topbar-patient' : ''}`.trim()}>
-      {showMenuToggle ? (
+      {showMenuToggle || !isSidebarOpen ? (
         <button
           aria-label={isSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
-          className="sidebar-toggle sidebar-toggle-mobile"
+          className={`sidebar-toggle ${showMenuToggle ? 'sidebar-toggle-mobile' : 'sidebar-toggle-desktop-reopen'}`.trim()}
           onClick={onMenuToggle}
           type="button"
         >
           <AppIcon name={isSidebarOpen ? 'close' : 'menu'} size={18} />
         </button>
       ) : null}
-      {!isSidebarOpen && (
-        <button
-          aria-label="Expand sidebar"
-          className="sidebar-toggle sidebar-toggle-desktop-reopen"
-          onClick={onMenuToggle}
-          type="button"
-        >
-          <AppIcon name="menu" size={18} />
-        </button>
-      )}
       <div className="topbar-title">
         <div className="caption">{title}</div>
         <h1>{getPageTitle(location.pathname)}</h1>
