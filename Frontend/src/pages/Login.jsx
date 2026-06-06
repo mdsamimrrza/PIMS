@@ -232,6 +232,21 @@ export default function Login({ forcedRole = null, showRolePicker = true, pageTi
 
             <footer className="pl-auth-footer">
               <p>Institutional access governed by HIPAA & GDPR security protocols.</p>
+              {isDevelopment && (
+                <div style={{
+                  marginTop: '1.25rem',
+                  padding: '0.75rem',
+                  background: 'rgba(27, 201, 154, 0.08)',
+                  border: '1px dashed rgba(27, 201, 154, 0.3)',
+                  borderRadius: '6px',
+                  fontSize: '0.85rem',
+                  color: 'var(--text-primary)',
+                  textAlign: 'left'
+                }}>
+                  <strong style={{ color: '#1bc99a', display: 'block', marginBottom: '0.25rem' }}>Testing Credentials:</strong>
+                  <span style={{ fontFamily: 'monospace' }}>{ROLE_EMAIL_DEFAULTS[activeRole]}</span> / <span style={{ fontFamily: 'monospace' }}>{DEV_SEED_PASSWORD}</span>
+                </div>
+              )}
             </footer>
           </div>
         </section>
