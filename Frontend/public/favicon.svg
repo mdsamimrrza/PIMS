@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Dual Gradient (Emerald Teal to Azure Blue) -->
+    <linearGradient id="pimsBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1BC99A" />
+      <stop offset="60%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#2563EB" />
+    </linearGradient>
+
+    <!-- Glossy Accent Overlay -->
+    <linearGradient id="pimsGloss" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.3" />
+      <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.15" />
+    </linearGradient>
+
+    <!-- Drop Shadow for Medical Emblem -->
+    <filter id="emblemShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#064E3B" flood-opacity="0.3" />
+    </filter>
+
+    <!-- Emblem White Gradient -->
+    <linearGradient id="emblemWhite" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F0FDF4" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Squircle -->
+  <rect x="20" y="20" width="472" height="472" rx="112" fill="url(#pimsBg)" />
+
+  <!-- Glossy Glass Overlay -->
+  <path d="M 20 132 C 20 70, 70 20, 132 20 H 380 C 442 20, 492 70, 492 132 V 220 L 20 190 Z" fill="url(#pimsGloss)" />
+
+  <!-- Outer Glass Border -->
+  <rect x="21" y="21" width="470" height="470" rx="111" fill="none" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="3" />
+
+  <!-- Emblem Group with Shadow -->
+  <g filter="url(#emblemShadow)">
+    <!-- Vertical Medical Cross Bar -->
+    <rect x="215" y="123" width="82" height="266" rx="41" fill="url(#emblemWhite)" />
+
+    <!-- Horizontal Medical Cross Bar -->
+    <rect x="123" y="215" width="266" height="82" rx="41" fill="url(#emblemWhite)" />
+
+    <!-- Heartbeat / EKG Pulse Line (Emerald Accent) -->
+    <path d="M 112 256 H 179 L 200 215 L 225 297 L 256 179 L 287 317 L 307 235 L 328 256 H 400"
+          fill="none" 
+          stroke="#10B981" 
+          stroke-width="18" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" />
+  </g>
+</svg>
